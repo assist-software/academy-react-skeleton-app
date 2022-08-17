@@ -1,0 +1,22 @@
+[
+  {
+    "title": "Mergi la sala",
+    "description": "Sa alergi cel putin 30 de minute. Astazi faci piep si spate",
+    "done": false
+  },
+  {
+    "title": "Mananca un mic dejun gustos",
+    "description": "Daca o sa fie bun ceea ce primesti la pachet, all good. Altfel, fa o omleta cu 3 oua si un pic de lapte",
+    "done": false
+  },
+  {
+    "title": "Fa o plimbare cu fetele",
+    "description": "Incearca sa mergi pe un drum nou",
+    "done": true
+  },
+  {
+    "title": "Asculta 30 de minute din cartea lui Peterson",
+    "description": "Incearca sa pui pauza la unele sectiuni si sa-ti spui in gand parerea despre subiectul pe care el il abordeaza",
+    "done": true
+  }
+]
