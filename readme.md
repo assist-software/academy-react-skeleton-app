@@ -1,0 +1,1 @@
+# Template for your next react application
