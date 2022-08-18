@@ -1,12 +1,10 @@
-import { Router } from 'layout/router'
-import { TodoList } from 'features/todo'
+import { Router } from 'pages/router'
 
 function App() {
   return (
     <div className='App'>
       <header className='App-header'>
         <Router />
-        <TodoList />
       </header>
     </div>
   )

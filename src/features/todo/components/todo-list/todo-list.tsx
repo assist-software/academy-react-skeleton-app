@@ -2,7 +2,8 @@ import { useEffect } from 'react'
 import { observer } from 'mobx-react-lite'
 import { toJS } from 'mobx'
 
-import { useStore } from 'store'
+import { useStore } from 'common/store/store'
+
 import { TodoItem } from 'features/todo/components/todo-item/todo-item'
 import { TodoItemLite } from 'features/todo/components/todo-item-lite/todo-item-lite'
 

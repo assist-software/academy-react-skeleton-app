@@ -5,6 +5,10 @@ const addKeysToListItems = (list: any[]) => {
   return listWithKeys
 }
 
+const getRandomInt = ({ min, max }: { min: number; max: number }) =>
+  Math.floor(Math.random() * (max - min + 1) + min)
+
 export const UtilService = {
   addKeysToListItems,
+  getRandomInt,
 }
