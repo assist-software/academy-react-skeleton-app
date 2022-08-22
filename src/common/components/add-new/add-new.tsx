@@ -1,4 +1,5 @@
 import componentImgSrc from 'common/assets/add-new.jpg'
+
 import styles from './add-new.module.scss'
 
 export const AddNew = () => {

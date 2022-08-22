@@ -20,7 +20,7 @@
     "ecmaVersion": "latest",
     "sourceType": "module"
   },
-  "plugins": ["react", "@typescript-eslint", "prettier", "css-modules", "no-relative-import-paths"],
+  "plugins": ["react", "@typescript-eslint", "prettier", "css-modules", "import"],
   "rules": {
     "curly": ["off"],
     "no-shadow": "off",
@@ -33,6 +33,35 @@
     "no-multiple-empty-lines": ["error", { "max": 2 }],
     "css-modules/no-unused-class": [2, { "camelCase": true }],
     "css-modules/no-undef-class": [2, { "camelCase": true }],
+    "sort-imports": ["error", { "ignoreCase": true, "ignoreDeclarationSort": true }],
+
+    "import/order": [
+      "error",
+      {
+        "groups": [
+          "builtin",
+          "external",
+          "internal",
+          "index",
+          "object",
+          "type",
+          ["parent", "sibling"]
+        ],
+        "pathGroups": [
+          {
+            "pattern": "react*",
+            "group": "external",
+            "position": "before"
+          }
+        ],
+        "pathGroupsExcludedImportTypes": ["react"],
+        "newlines-between": "always",
+        "alphabetize": {
+          "order": "asc",
+          "caseInsensitive": true
+        }
+      }
+    ],
     "prettier/prettier": [
       "error",
       {

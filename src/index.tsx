@@ -5,6 +5,8 @@ import { BrowserRouter } from 'react-router-dom'
 import App from './App'
 import reportWebVitals from './reportWebVitals'
 
+import 'primeflex/primeflex.css'
+import 'primereact/resources/primereact.css'
 import 'primereact/resources/themes/nova/theme.css'
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
