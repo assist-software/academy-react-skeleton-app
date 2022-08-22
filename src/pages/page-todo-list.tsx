@@ -1,7 +1,7 @@
 import { TodoList } from 'features/todo'
 import { ActivitySuggestionRandomItem } from 'features/activity-suggestions'
 
-export const TodoListPage = () => {
+export const PageTodoList = () => {
   return (
     <div>
       <TodoList />

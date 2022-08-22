@@ -1,4 +1,4 @@
-import { ITodo, ITodoLite } from 'features/todo/models/todo-models'
+import { ITodo, ITodoLite } from '../models/todo-models'
 
 const getTodoListLite = (todoList: ITodo[]) => {
   const todoListLite: ITodoLite[] = todoList.map((todo) => ({

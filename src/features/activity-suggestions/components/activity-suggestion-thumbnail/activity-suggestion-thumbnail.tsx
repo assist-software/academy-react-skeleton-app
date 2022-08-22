@@ -1,4 +1,5 @@
-import { IActivitySuggestion } from 'features/activity-suggestions/models/activity-suggestion-models'
+import { IActivitySuggestion } from '../../models/activity-suggestion-models'
+
 import styles from './activity-suggestion-thumbnail.module.scss'
 
 interface Props {

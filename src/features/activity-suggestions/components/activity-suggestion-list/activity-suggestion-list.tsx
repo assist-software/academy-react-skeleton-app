@@ -1,8 +1,9 @@
 import { useEffect } from 'react'
 import { observer } from 'mobx-react-lite'
 
-import { ActivitySuggestionThumbnail } from 'features/activity-suggestions/components/activity-suggestion-thumbnail/activity-suggestion-thumbnail'
 import { useStore } from 'common/store/store'
+
+import { ActivitySuggestionThumbnail } from '../activity-suggestion-thumbnail/activity-suggestion-thumbnail'
 
 import styles from './activity-suggestion-list.module.scss'
 

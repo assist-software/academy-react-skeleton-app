@@ -1,12 +1,17 @@
-import { Router } from 'pages/router'
+import { PageRouter } from 'pages/page-router'
+
+import { LayoutNavigation } from './layout/layout-header/layout-navigation'
+import { LayoutFooter } from 'layout/layout-footer/layout-footer'
 
 function App() {
   return (
-    <div className='App'>
-      <header className='App-header'>
-        <Router />
-      </header>
-    </div>
+    <main>
+      <LayoutNavigation />
+
+      <PageRouter />
+
+      <LayoutFooter />
+    </main>
   )
 }
 

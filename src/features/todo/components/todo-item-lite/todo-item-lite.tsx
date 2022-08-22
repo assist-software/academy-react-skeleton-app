@@ -1,4 +1,4 @@
-import { ITodoLite } from 'features/todo/models/todo-models'
+import { ITodoLite } from '../../models/todo-models'
 
 import styles from './todo-item-lite.module.scss'
 

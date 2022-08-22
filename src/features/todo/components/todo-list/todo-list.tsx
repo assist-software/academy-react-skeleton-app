@@ -4,8 +4,8 @@ import { toJS } from 'mobx'
 
 import { useStore } from 'common/store/store'
 
-import { TodoItem } from 'features/todo/components/todo-item/todo-item'
-import { TodoItemLite } from 'features/todo/components/todo-item-lite/todo-item-lite'
+import { TodoItem } from '../todo-item/todo-item'
+import { TodoItemLite } from '../todo-item-lite/todo-item-lite'
 
 export const TodoList = observer(() => {
   const { todoStore } = useStore()

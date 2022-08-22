@@ -1,9 +1,10 @@
 import { makeAutoObservable } from 'mobx'
 
-import { ITodo } from 'features/todo/models/todo-models'
-import { TodoUtilService } from 'features/todo/services/todo-util-service'
-import { TodoAPIService } from 'features/todo/services/todo-api-service'
 import { UtilService } from 'common/services/UtilService'
+
+import { ITodo } from '../models/todo-models'
+import { TodoUtilService } from '../services/todo-util-service'
+import { TodoAPIService } from '../services/todo-api-service'
 
 export class TodoStore {
   todoList: ITodo[] = []
