@@ -1,6 +1,6 @@
 import { makeAutoObservable } from 'mobx'
 
-import { UtilService } from 'common/services/UtilService'
+import { UtilService } from 'common/services/util-service'
 
 import { IActivitySuggestion } from 'features/activity-suggestions/models/activity-suggestion-models'
 import { ActivitySuggestionAPIService } from 'features/activity-suggestions/services/activity-suggestions-api-service'

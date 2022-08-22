@@ -1,16 +1,20 @@
 import { makeAutoObservable } from 'mobx'
 
-import { UtilService } from 'common/services/UtilService'
+import { ICommon } from 'common/models/models'
+import { PAGES_PATHS } from 'common/constants/constant'
+import { UtilService } from 'common/services/util-service'
 
 import { ITodo } from '../models/todo-models'
-import { TodoUtilService } from '../services/todo-util-service'
+
 import { TodoAPIService } from '../services/todo-api-service'
+import { TodoUtilService } from '../services/todo-util-service'
 
 export class TodoStore {
-  todoList: ITodo[] = []
+  todoList: ITodo[] | ICommon | any = []
 
   constructor() {
     makeAutoObservable(this)
+    console.log('PAGES_PATHS: ', PAGES_PATHS)
   }
 
   get todoListLite() {

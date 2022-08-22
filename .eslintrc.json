@@ -38,26 +38,97 @@
     "import/order": [
       "error",
       {
-        "groups": [
-          "builtin",
-          "external",
-          "internal",
-          "index",
-          "object",
-          "type",
-          ["parent", "sibling"]
-        ],
+        "groups": ["builtin", "external", "internal", ["parent", "sibling"]],
         "pathGroups": [
           {
-            "pattern": "react*",
-            "group": "external",
-            "position": "before"
+            "pattern": "common/models/**",
+            "group": "internal",
+            "position": "after"
+          },
+          {
+            "pattern": "common/constants/**",
+            "group": "internal",
+            "position": "after"
+          },
+          {
+            "pattern": "common/services/**",
+            "group": "internal",
+            "position": "after"
+          },
+          {
+            "pattern": "common/hooks/**",
+            "group": "internal",
+            "position": "after"
+          },
+          {
+            "pattern": "common/store/**",
+            "group": "internal",
+            "position": "after"
+          },
+          {
+            "pattern": "common/assets/**",
+            "group": "internal",
+            "position": "after"
+          },
+          {
+            "pattern": "../models/**",
+            "group": "internal",
+            "position": "after"
+          },
+          {
+            "pattern": "../../models/**",
+            "group": "internal",
+            "position": "after"
+          },
+          {
+            "pattern": "../constants/**",
+            "group": "internal",
+            "position": "after"
+          },
+          {
+            "pattern": "../../constants/**",
+            "group": "internal",
+            "position": "after"
+          },
+          {
+            "pattern": "../services/**",
+            "group": "internal",
+            "position": "after"
+          },
+          {
+            "pattern": "../../services/**",
+            "group": "internal",
+            "position": "after"
+          },
+          {
+            "pattern": "../hooks/**",
+            "group": "internal",
+            "position": "after"
+          },
+          {
+            "pattern": "../../hooks/**",
+            "group": "internal",
+            "position": "after"
+          },
+          {
+            "pattern": "../assets",
+            "group": "internal",
+            "position": "after"
+          },
+          {
+            "pattern": "../../assets",
+            "group": "internal",
+            "position": "after"
+          },
+          {
+            "pattern": "./*.scss",
+            "group": "internal",
+            "position": "after"
           }
         ],
-        "pathGroupsExcludedImportTypes": ["react"],
-        "newlines-between": "always",
+        "pathGroupsExcludedImportTypes": ["react", "common"],
+        // "newlines-between": "always",
         "alphabetize": {
-          "order": "asc",
           "caseInsensitive": true
         }
       }
