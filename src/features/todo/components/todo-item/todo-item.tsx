@@ -12,7 +12,7 @@ export const TodoItem = ({ todo }: Props) => {
   return (
     <>
       {todo && (
-        <Card style={{ width: '25rem', marginBottom: '2em' }}>
+        <Card className=''>
           <div className={styles.item}>
             <h2 className={styles.itemTitle}>{todo.title}</h2>
             <p className={styles.itemDescription}>{todo.description}</p>
