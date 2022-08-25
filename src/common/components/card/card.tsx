@@ -5,7 +5,7 @@ interface Props {
 }
 export const Card = ({ children }: Props) => {
   return (
-    <div className={styles.card}>
+    <div className={styles.cardSomethingElse}>
       <h1 className={styles.cardTitle}>Card Tittle</h1>
       {children}
     </div>

@@ -1,7 +1,11 @@
 .card {
   color: red;
-}
 
-.cardTitle {
-  color: red;
+  &Title {
+    color: red;
+  }
+
+  &SomethingElse {
+    color: red;
+  }
 }
