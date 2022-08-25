@@ -31,8 +31,8 @@
     "no-unused-vars": "off",
     "@typescript-eslint/no-unused-vars": ["error"],
     "no-multiple-empty-lines": ["error", { "max": 2 }],
-    "css-modules/no-unused-class": [2, { "camelCase": true }],
-    "css-modules/no-undef-class": [2, { "camelCase": true }],
+    "css-modules/no-unused-class": [1, { "camelCase": true }],
+    "css-modules/no-undef-class": [1, { "camelCase": true }],
     "prettier/prettier": [
       "error",
       {
