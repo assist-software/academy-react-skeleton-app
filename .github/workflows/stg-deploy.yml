@@ -1,0 +1,64 @@
+name: "Stg Webapp Deployment"
+on:
+  push:
+    branches:
+      - stg
+permissions:
+  id-token: write
+  contents: read
+env:
+  AWS_REGION: "us-west-2"
+  FE_S3_BUCKET: "fe-stg.panko-labs.com"
+  DISTRIBUTION: "E3RIEU0C1W447Z"
+jobs:
+  webapp:
+    name: "Panko Webapp Deployment"
+    environment: stg
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: us-west-2
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Cache node modules
+        uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: ${{ runner.OS }}-build-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.OS }}-build-
+            ${{ runner.OS }}-
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install
+        run: npm install
+
+      - name: Build
+        # env:
+        #   REACT_APP_AWS_COGNITO_REGION: ${{ secrets.REACT_APP_AWS_COGNITO_REGION }}
+        #   REACT_APP_AWS_COGNITO_USER_POOL_ID: ${{ secrets.REACT_APP_AWS_COGNITO_USER_POOL_ID }}
+        #   REACT_APP_AWS_COGNITO_USER_POOL_WEB_CLIENT_ID: ${{ secrets.REACT_APP_AWS_COGNITO_USER_POOL_WEB_CLIENT_ID }}
+
+        run: npm run build
+
+      - name: Deploy to S3
+        run: |
+          aws s3 cp \
+            --acl public-read \
+            --recursive \
+            --region $AWS_REGION \
+            build/ s3://$FE_S3_BUCKET
+
+      - name: Invalidate cloudfront cache
+        uses: chetan/invalidate-cloudfront-action@v2
+        env:
+          PATHS: "/index.html"

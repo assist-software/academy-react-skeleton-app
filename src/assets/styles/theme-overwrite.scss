@@ -1,0 +1,45 @@
+/* InputText */
+.p-inputtext {
+  border: 1px solid #b5b5b5;
+  border-radius: 4px;
+  font-family: var(--font-family);
+  font-size: 20px;
+}
+
+/* Card */
+.p-card {
+  .p-card-body {
+    padding: 10px 40px;
+  }
+}
+
+/* Button */
+.p-button {
+  background-color: #38aabb;
+  border: 1px solid #38aabb;
+  border-radius: 200px;
+
+  &.p-button-outlined {
+    color: #38aabb;
+  }
+
+  .p-button-label {
+    font-weight: 600;
+  }
+}
+
+/* Avatar */
+.p-avatar {
+  &.p-avatar-circle {
+    border-radius: 50%;
+  }
+}
+
+/* Divider */
+.p-divider {
+  &.p-divider-horizontal {
+    &::before {
+      border-top: 1px solid #ddd;
+    }
+  }
+}
