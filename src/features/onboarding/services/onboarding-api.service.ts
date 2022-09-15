@@ -11,22 +11,32 @@ export const amplifySignUp = async ({
   industry,
   phone,
 }: SignUpFormsData) => {
-  const username = email.replace('@', '.')
+  // const username = email.replace('@', '.')
 
-  await Auth.signUp({
-    username,
-    password,
-    attributes: {
-      name,
-      email,
-      'custom:company': company,
-      'custom:title': role,
-      'custom:industry': industry,
-      phone_number: phone,
-    },
-    autoSignIn: {
-      enabled: false,
-    },
+  // await Auth.signUp({
+  //   username,
+  //   password,
+  //   attributes: {
+  //     name,
+  //     email,
+  //     'custom:company': company,
+  //     'custom:title': role,
+  //     'custom:industry': industry,
+  //     phone_number: phone,
+  //   },
+  //   autoSignIn: {
+  //     enabled: false,
+  //   },
+  // })
+
+  return new Promise<void>((resolve, reject) => {
+    setTimeout(() => {
+      if (Date.now() % 2 === 0) {
+        resolve()
+      } else {
+        reject(new Error('User already exists'))
+      }
+    }, 3000)
   })
 }
 

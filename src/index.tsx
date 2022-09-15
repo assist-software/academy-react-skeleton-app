@@ -7,7 +7,7 @@ import 'primereact/resources/primereact.min.css'
 import 'primereact/resources/themes/lara-light-teal/theme.css'
 import 'primeicons/primeicons.css'
 
-import { configureAmplify } from 'common/services/auth.service'
+// import { configureAmplify } from 'common/services/auth.service'
 import { setInterceptorsTo } from 'common/services/interceptors.service'
 import { App } from './app'
 import reportWebVitals from './report-web-vitals'
@@ -15,7 +15,7 @@ import 'assets/styles/variables.scss'
 import 'assets/styles/theme-overwrite.scss'
 import 'assets/styles/components.scss'
 
-configureAmplify()
+// configureAmplify()
 
 setInterceptorsTo(axios)
 
