@@ -29,10 +29,10 @@ export const amplifySignUp = async ({
   //   },
   // })
 
-  return new Promise<void>((resolve, reject) => {
+  return new Promise<undefined>((resolve, reject) => {
     setTimeout(() => {
       if (Date.now() % 2 === 0) {
-        resolve()
+        resolve(undefined)
       } else {
         reject(new Error('User already exists'))
       }
@@ -41,7 +41,17 @@ export const amplifySignUp = async ({
 }
 
 export const amplifyConfirmSignUp = async (username: string, code: string) => {
-  await Auth.confirmSignUp(username, code)
+  // await Auth.confirmSignUp(username, code)
+
+  return new Promise<undefined>((resolve, reject) => {
+    setTimeout(() => {
+      if (Date.now() % 2 === 0) {
+        resolve(undefined)
+      } else {
+        reject(new Error('Username/client id combination not found.'))
+      }
+    }, 3000)
+  })
 }
 
 export const amplifySignIn = async ({ email, password }: SignInFormData) => {
