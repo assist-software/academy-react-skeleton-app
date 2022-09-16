@@ -55,9 +55,20 @@ export const amplifyConfirmSignUp = async (username: string, code: string) => {
 }
 
 export const amplifySignIn = async ({ email, password }: SignInFormData) => {
-  const username = email.replace('@', '.')
-  await Auth.signIn(username, password)
-  window.localStorage.setItem('userRole', 'Admin')
+  // const username = email.replace('@', '.')
+  // await Auth.signIn(username, password)
+  // window.localStorage.setItem('userRole', 'Admin')
+
+  return new Promise<undefined>((resolve, reject) => {
+    setTimeout(() => {
+      if (email === 'cont.test@assist.ro' && password === 'test123*') {
+        window.localStorage.setItem('userRole', 'Admin')
+        resolve(undefined)
+      } else {
+        reject(new Error('Incorrect username or password.'))
+      }
+    }, 3000)
+  })
 }
 
 export const amplifyForgotPassword = async (email: string) => {
