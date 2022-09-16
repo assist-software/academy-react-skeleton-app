@@ -87,7 +87,13 @@ export const amplifyForgotPasswordSubmit = async (
   code: string,
   newPassword: string,
 ) => {
-  await Auth.forgotPasswordSubmit(username, code, newPassword)
+  // await Auth.forgotPasswordSubmit(username, code, newPassword)
+
+  return new Promise<undefined>((resolve) => {
+    setTimeout(() => {
+      resolve(undefined)
+    }, 3000)
+  })
 }
 
 export const amplifySignOut = async () => {
