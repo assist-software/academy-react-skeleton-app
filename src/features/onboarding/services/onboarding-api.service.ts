@@ -72,8 +72,14 @@ export const amplifySignIn = async ({ email, password }: SignInFormData) => {
 }
 
 export const amplifyForgotPassword = async (email: string) => {
-  const username = email.replace('@', '.')
-  await Auth.forgotPassword(username)
+  // const username = email.replace('@', '.')
+  // await Auth.forgotPassword(username)
+
+  return new Promise<undefined>((resolve) => {
+    setTimeout(() => {
+      resolve(undefined)
+    }, 3000)
+  })
 }
 
 export const amplifyForgotPasswordSubmit = async (
