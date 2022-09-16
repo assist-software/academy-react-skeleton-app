@@ -31,12 +31,12 @@ export const amplifySignUp = async ({
 
   return new Promise<undefined>((resolve, reject) => {
     setTimeout(() => {
-      if (Date.now() % 2 === 0) {
+      if (email !== 'cont.test@assist.ro') {
         resolve(undefined)
       } else {
         reject(new Error('User already exists'))
       }
-    }, 3000)
+    }, 2000)
   })
 }
 
@@ -45,12 +45,12 @@ export const amplifyConfirmSignUp = async (username: string, code: string) => {
 
   return new Promise<undefined>((resolve, reject) => {
     setTimeout(() => {
-      if (Date.now() % 2 === 0) {
+      if (username === 'cont.test.assist.ro') {
         resolve(undefined)
       } else {
         reject(new Error('Username/client id combination not found.'))
       }
-    }, 3000)
+    }, 2000)
   })
 }
 
@@ -67,7 +67,7 @@ export const amplifySignIn = async ({ email, password }: SignInFormData) => {
       } else {
         reject(new Error('Incorrect username or password.'))
       }
-    }, 3000)
+    }, 2000)
   })
 }
 
@@ -78,7 +78,7 @@ export const amplifyForgotPassword = async (email: string) => {
   return new Promise<undefined>((resolve) => {
     setTimeout(() => {
       resolve(undefined)
-    }, 3000)
+    }, 2000)
   })
 }
 
@@ -89,10 +89,14 @@ export const amplifyForgotPasswordSubmit = async (
 ) => {
   // await Auth.forgotPasswordSubmit(username, code, newPassword)
 
-  return new Promise<undefined>((resolve) => {
+  return new Promise<undefined>((resolve, reject) => {
     setTimeout(() => {
-      resolve(undefined)
-    }, 3000)
+      if (code === '703733') {
+        resolve(undefined)
+      } else {
+        reject(new Error('Invalid verification code provided, please try again.'))
+      }
+    }, 2000)
   })
 }
 
@@ -104,6 +108,6 @@ export const amplifySignOut = async () => {
     setTimeout(() => {
       window.localStorage.removeItem('userRole')
       resolve(undefined)
-    }, 3000)
+    }, 2000)
   })
 }
