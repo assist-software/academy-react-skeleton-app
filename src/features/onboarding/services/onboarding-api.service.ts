@@ -1,4 +1,4 @@
-import { Auth } from 'aws-amplify'
+// import { Auth } from 'aws-amplify'
 
 import { SignInFormData, SignUpFormsData } from '../types/onboarding-forms.types'
 
@@ -97,6 +97,13 @@ export const amplifyForgotPasswordSubmit = async (
 }
 
 export const amplifySignOut = async () => {
-  await Auth.signOut()
-  window.localStorage.removeItem('userRole')
+  // await Auth.signOut()
+  // window.localStorage.removeItem('userRole')
+
+  return new Promise<undefined>((resolve) => {
+    setTimeout(() => {
+      window.localStorage.removeItem('userRole')
+      resolve(undefined)
+    }, 3000)
+  })
 }
