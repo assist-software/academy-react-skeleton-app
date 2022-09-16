@@ -1,5 +1,10 @@
 # Panko
 
+Setup:
+
+- in the project root folder add the file `.env.development.local`, content:
+  `REACT_APP_BASE_URL='https://6310a933826b98071a474b4b.mockapi.io'`
+
 Onboarding pages:
 
 http://localhost:3000/sign-up-step-1
