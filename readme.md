@@ -1,10 +1,5 @@
 # Panko
 
-Setup:
-
-- in the project root folder add the file `.env.development.local`, content:
-  `REACT_APP_BASE_URL='https://6310a933826b98071a474b4b.mockapi.io'`
-
 Onboarding pages:
 
 http://localhost:3000/sign-up-step-1
@@ -28,3 +23,17 @@ http://localhost:3000/forgot-password
 http://localhost:3000/reset-password?username=cont.test.assist.ro&code=703733
 
 - only if you use the code `703733` (in query string) the password will be successfully reset...
+
+Project pages:
+
+http://localhost:3000/projects
+http://localhost:3000/create-project
+http://localhost:3000/update-project-step-1/1395454c-a8e5-43dd-ac3e-779e2e8b085d
+http://localhost:3000/update-project-step-2/1395454c-a8e5-43dd-ac3e-779e2e8b085d
+
+- All these pages use dummy data... the connection with an API is simulated... the data does not persist. Even if the UI is not updated in some moments, the part that interests us is the flow of the app and the structure of the project...
+
+Other pages:
+http://localhost:3000/projectss
+
+- Wrong URLs will be redirected to Error 404
