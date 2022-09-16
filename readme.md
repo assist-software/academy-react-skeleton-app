@@ -2,7 +2,7 @@
 
 Onboarding pages:
 
-http://localhost:3000/sign-up-step-1
+http://localhost:3000/sign-up-step-1<br>
 http://localhost:3000/sign-up-step-2
 
 - if you use the email `cont.test@assist.ro` you will receive the error `User already exists`...
@@ -26,9 +26,9 @@ http://localhost:3000/reset-password?username=cont.test.assist.ro&code=703733
 
 Project pages:
 
-http://localhost:3000/projects
-http://localhost:3000/create-project
-http://localhost:3000/update-project-step-1/1395454c-a8e5-43dd-ac3e-779e2e8b085d
+http://localhost:3000/projects<br>
+http://localhost:3000/create-project<br>
+http://localhost:3000/update-project-step-1/1395454c-a8e5-43dd-ac3e-779e2e8b085d<br>
 http://localhost:3000/update-project-step-2/1395454c-a8e5-43dd-ac3e-779e2e8b085d
 
 - All these pages use dummy data... the connection with an API is simulated... the data does not persist. Even if the UI is not updated in some moments, the part that interests us is the flow of the app and the structure of the project...
