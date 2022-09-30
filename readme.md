@@ -1,4 +1,4 @@
-# Panko
+# Stefan Tcaciuc React Skeleton
 
 **This is not a complete app, it is a skeleton. Its purpose is to provide you with some approaches related to the structure and implementation of an app using React. Some portions of the original code have been commented and some functionalities have been simulated...**
 
