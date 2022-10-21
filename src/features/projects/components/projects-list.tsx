@@ -5,41 +5,38 @@ import fromUnixTime from 'date-fns/fromUnixTime'
 import formatDistance from 'date-fns/formatDistance'
 import { ColumnProps } from 'primereact/column'
 import { Skeleton } from 'primereact/skeleton'
+import useInfiniteScroll from 'react-infinite-scroll-hook'
 
 import { useStore } from 'common/store/store'
 import { GenericDataTable } from 'common/components/generic-data-table'
 import { MoreActionsButton } from 'common/components/more-actions-button'
-import { Project } from '../types/projects-models.types'
 import { NoDataFound } from 'common/components/no-data-found'
+import { LoadingItemsIndicator } from 'common/components/loading-items-indicator'
+import { numberOfProjectsDisplayedPerPage } from '../constants/projects.const'
+import { Project } from '../types/projects-models.types'
 
 export const ProjectsList = observer(() => {
-  const { notifierStore } = useStore()
-  const { projectsStore } = useStore()
-  const { projects, removeProject } = projectsStore
+  const { notifierStore, projectsStore } = useStore()
 
+  const { projects, removeProject, totalNumberOfProjects } = projectsStore
+
+  const [nextPage, setNextPage] = useState(1)
   const [isLoadingProjects, setIsLoadingProjects] = useState(true)
-  const [isLoadingProjectIdsToDelete, setIsLoadingProjectIdsToDelete] = useState<string[]>([])
+  const [isLoadingProjectsPage, setIsLoadingProjectsPage] = useState(true)
+  const [isLoadingProjectIdsToDelete, setIsLoadingProjectIdsToDelete] = useState<number[]>([])
 
   const navigate = useNavigate()
 
   useEffect(() => {
-    ;(async () => {
-      try {
-        await projectsStore.loadProjects()
-      } catch (error) {
-        notifierStore.pushMessage({
-          severity: 'error',
-          detail: `An error occurred while loading the projects: ${error.message}`,
-        })
-      } finally {
-        setIsLoadingProjects(false)
-      }
-    })()
+    loadProjects()
   }, [])
 
-  const deleteProjectHandler = async (projectId: string) => {
+  const deleteProjectHandler = async (projectId: number) => {
     try {
-      setIsLoadingProjectIdsToDelete([...isLoadingProjectIdsToDelete, projectId])
+      setIsLoadingProjectIdsToDelete((prevIsLoadingProjectIdsToDelete) => [
+        ...prevIsLoadingProjectIdsToDelete,
+        projectId,
+      ])
 
       await removeProject(projectId)
 
@@ -53,17 +50,49 @@ export const ProjectsList = observer(() => {
         detail: `An error occurred while deleting the project: ${error.message}`,
       })
     } finally {
-      setIsLoadingProjectIdsToDelete(
-        isLoadingProjectIdsToDelete.filter((id) => {
+      setIsLoadingProjectIdsToDelete((prevIsLoadingProjectIdsToDelete) =>
+        prevIsLoadingProjectIdsToDelete.filter((id) => {
           return id !== projectId
         }),
       )
     }
   }
 
+  const loadProjects = async () => {
+    try {
+      setIsLoadingProjectsPage(true)
+
+      await projectsStore.loadProjects({
+        page: nextPage,
+        pageSize: numberOfProjectsDisplayedPerPage,
+      })
+
+      setNextPage((prevNextPage) => prevNextPage + 1)
+    } catch (error) {
+      notifierStore.pushMessage({
+        severity: 'error',
+        detail: `An error occurred while loading the projects: ${error.message}`,
+      })
+    } finally {
+      setIsLoadingProjects(false)
+      setIsLoadingProjectsPage(false)
+    }
+  }
+
+  const thereAreProjectsToLoad =
+    nextPage <= Math.ceil(totalNumberOfProjects / numberOfProjectsDisplayedPerPage)
+
+  const [sentryRef] = useInfiniteScroll({
+    loading: isLoadingProjectsPage,
+    hasNextPage: thereAreProjectsToLoad,
+    onLoadMore: loadProjects,
+  })
+
   const columns: ColumnProps[] = [
     {
-      header: `${projects.length} active ${projects.length === 1 ? 'project' : 'projects'}`,
+      header: `${totalNumberOfProjects} active ${
+        totalNumberOfProjects === 1 ? 'project' : 'projects'
+      }`,
       field: 'name',
       body: ({ name }: Project) => {
         return <span className='text-xl'>{name}</span>
@@ -143,7 +172,13 @@ export const ProjectsList = observer(() => {
       </NoDataFound>
     )
   } else {
-    content = <GenericDataTable columns={columns} value={projects} responsiveLayout='scroll' />
+    content = (
+      <>
+        <GenericDataTable columns={columns} value={projects} responsiveLayout='scroll' />
+        {thereAreProjectsToLoad && <LoadingItemsIndicator />}
+        <div ref={sentryRef} />
+      </>
+    )
   }
 
   return content

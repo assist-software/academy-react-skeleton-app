@@ -10,7 +10,7 @@ export const UserAccountDropdownMenu = () => {
   const [optionsCollapsed, setOptionsCollapsed] = useState(true)
 
   const toggleOptionsCollapsedHandler = (): void => {
-    setOptionsCollapsed(!optionsCollapsed)
+    setOptionsCollapsed((prevOptionsCollapsed) => !prevOptionsCollapsed)
   }
 
   const userData = getAuthUserData()

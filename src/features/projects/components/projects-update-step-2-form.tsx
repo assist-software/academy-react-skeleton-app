@@ -1,30 +1,42 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { observer } from 'mobx-react-lite'
+import classNames from 'classnames'
+import { Formik } from 'formik'
+import * as yup from 'yup'
 import { Card } from 'primereact/card'
 import { Skeleton } from 'primereact/skeleton'
 import { Divider } from 'primereact/divider'
 import { Button } from 'primereact/button'
 
+import {
+  getFormikFormFieldErrorMessage,
+  isFormikFormFieldInvalid,
+} from 'common/services/utils.service'
 import { useStore } from 'common/store/store'
-import { ActionButton } from 'common/components/action-button'
 import { MoreActionsButton } from 'common/components/more-actions-button'
 import { GenericChip } from 'common/components/generic-chip'
-import { NoDataFound } from 'common/components/no-data-found'
-import { EntitiesBatch } from '../types/projects-models.types'
+import { GenericChipInputText } from 'common/components/generic-chip-input-text'
+import { GenericChipButton } from 'common/components/generic-chip-button'
+import { numberOfEntitiesDisplayedPerPackage } from '../constants/projects.const'
+import { Entity, Project } from '../types/projects-models.types'
+import {
+  AddEntityFormData,
+  AddPackageFormData,
+  PackageFormData,
+} from '../types/projects-forms.types'
 
 interface ProjectsUpdateStep2FormProps {
-  id: string
+  id: number
 }
 
 export const ProjectsUpdateStep2Form = observer(
   ({ id: targetedProjectId }: ProjectsUpdateStep2FormProps) => {
-    const { notifierStore } = useStore()
-    const { projectsStore } = useStore()
+    const { notifierStore, projectsStore } = useStore()
 
-    const { modifyProject, project } = projectsStore
+    const { addEntity, modifyProject, project } = projectsStore
 
-    const [projectEntitiesBatches, setProjectEntitiesBatches] = useState<EntitiesBatch[]>([])
+    const [projectPackages, setProjectPackages] = useState<PackageFormData[]>([])
     const [isLoadingProject, setIsLoadingProject] = useState(true)
     const [isLoadingModifyProject, setIsLoadingModifyProject] = useState(false)
 
@@ -49,7 +61,15 @@ export const ProjectsUpdateStep2Form = observer(
 
     useEffect(() => {
       if (project) {
-        setProjectEntitiesBatches(project.entitiesBatches)
+        const projectCopy = JSON.parse(JSON.stringify(project)) as Project
+        setProjectPackages(
+          projectCopy.packages.map((projectPackage) => ({
+            ...projectPackage,
+            showAllEntities: false,
+            showAddButton: true,
+            isLoadingAddEntity: false,
+          })),
+        )
       }
     }, [project])
 
@@ -57,7 +77,7 @@ export const ProjectsUpdateStep2Form = observer(
       try {
         setIsLoadingModifyProject(true)
 
-        await modifyProject(targetedProjectId, { entitiesBatches: projectEntitiesBatches })
+        await modifyProject(targetedProjectId, { packages: projectPackages })
 
         notifierStore.pushMessage({
           severity: 'success',
@@ -75,34 +95,163 @@ export const ProjectsUpdateStep2Form = observer(
       }
     }
 
-    const removeEntitiesBatch = (entitiesBatchName: string) => {
-      setProjectEntitiesBatches(
-        projectEntitiesBatches.filter(({ name }) => name !== entitiesBatchName),
+    const removePackageHandler = (packageName: string) => {
+      setProjectPackages((prevProjectPackages) =>
+        prevProjectPackages.filter(({ name }) => name !== packageName),
       )
     }
 
-    const removeEntityFromBatch = (entitiesBatchName: string, entityToRemove: string) => {
-      const projectEntitiesBatchesCopy = [...projectEntitiesBatches]
+    const removeEntityFromPackageHandler = (packageName: string, entityIdToRemove: number) => {
+      setProjectPackages((prevProjectPackages) => {
+        const projectPackagesCopy = [...prevProjectPackages]
 
-      const entitiesBatch = projectEntitiesBatchesCopy.find(({ name }) => {
-        return name === entitiesBatchName
+        const targetedPackage = projectPackagesCopy.find(({ name }) => {
+          return name === packageName
+        })
+
+        if (!targetedPackage) {
+          return prevProjectPackages
+        }
+
+        targetedPackage.entities = targetedPackage.entities.filter(({ id }) => {
+          return id !== entityIdToRemove
+        })
+
+        return projectPackagesCopy
       })
-
-      if (!entitiesBatch) {
-        return
-      }
-
-      entitiesBatch.entities = entitiesBatch.entities.filter((entity) => {
-        return entity !== entityToRemove
-      })
-
-      setProjectEntitiesBatches(projectEntitiesBatchesCopy)
     }
 
-    let entitiesBatchesContent: JSX.Element
+    const showAddEntityInputHandler = (packageName: string) => {
+      setProjectPackages((prevProjectPackages) => {
+        const projectPackagesCopy = [...prevProjectPackages]
 
-    if (isLoadingProject) {
-      entitiesBatchesContent = (
+        const targetedPackage = projectPackagesCopy.find(({ name }) => {
+          return name === packageName
+        })
+
+        if (!targetedPackage) {
+          return prevProjectPackages
+        }
+
+        targetedPackage.showAddButton = false
+
+        return projectPackagesCopy
+      })
+    }
+
+    const toggleShowAllEntitiesHandler = (packageName: string) => {
+      setProjectPackages((prevProjectPackages) => {
+        const projectPackagesCopy = [...prevProjectPackages]
+
+        const targetedPackage = projectPackagesCopy.find(({ name }) => {
+          return name === packageName
+        })
+
+        if (!targetedPackage) {
+          return prevProjectPackages
+        }
+
+        targetedPackage.showAllEntities = !targetedPackage.showAllEntities
+
+        return projectPackagesCopy
+      })
+    }
+
+    const onSubmitAddPackageHandler = (packageName: string): void => {
+      setProjectPackages((prevProjectPackages) => {
+        const projectPackagesCopy = [...prevProjectPackages]
+        projectPackagesCopy.unshift({
+          name: packageName,
+          entities: [],
+          showAllEntities: false,
+          showAddButton: true,
+          isLoadingAddEntity: false,
+        })
+        return projectPackagesCopy
+      })
+    }
+
+    const onSubmitAddEntityHandler = async (
+      packageName: string,
+      addEntityFormData: AddEntityFormData,
+    ): Promise<void> => {
+      try {
+        toggleIsLoadingAddEntityPackage(packageName)
+
+        const addedEntity = await addEntity(addEntityFormData)
+
+        addEntityToPackage(packageName, addedEntity)
+
+        notifierStore.pushMessage({
+          severity: 'success',
+          detail: `The entity was added successfully.`,
+        })
+      } catch (error) {
+        notifierStore.pushMessage({
+          severity: 'error',
+          detail: `An error occurred while adding the entity: ${error.message}`,
+        })
+      } finally {
+        toggleIsLoadingAddEntityPackage(packageName)
+      }
+    }
+
+    const toggleIsLoadingAddEntityPackage = (packageName: string): void => {
+      setProjectPackages((prevProjectPackages) => {
+        const projectPackagesCopy = [...prevProjectPackages]
+
+        const targetedPackage = projectPackagesCopy.find(({ name }) => {
+          return name === packageName
+        })
+
+        if (!targetedPackage) {
+          return prevProjectPackages
+        }
+
+        targetedPackage.isLoadingAddEntity = !targetedPackage.isLoadingAddEntity
+
+        return projectPackagesCopy
+      })
+    }
+
+    const addEntityToPackage = (packageName: string, newEntity: Entity) => {
+      setProjectPackages((prevProjectPackages) => {
+        const projectPackagesCopy = [...prevProjectPackages]
+
+        const targetedPackage = projectPackagesCopy.find(({ name }) => {
+          return name === packageName
+        })
+
+        if (!targetedPackage) {
+          return prevProjectPackages
+        }
+
+        targetedPackage.entities.unshift(newEntity)
+
+        return projectPackagesCopy
+      })
+    }
+
+    const initialValuesAddPackage: AddPackageFormData = { name: '' }
+    const validationSchemaAddPackage = yup.object().shape({
+      name: yup
+        .mixed()
+        .required('Please enter the package name.')
+        .notOneOf(
+          projectPackages.map(({ name }) => name),
+          'A package with this name already exists.',
+        ),
+    })
+
+    const initialValuesAddEntity: AddEntityFormData = { name: '' }
+    const validationSchemaAddEntity = yup.object().shape({
+      name: yup.mixed().required('Please enter the entity.'),
+    })
+
+    let packagesContent: JSX.Element
+
+    if (isLoadingProject || projectPackages.length === 0) {
+      packagesContent = (
         <>
           {[...Array(5)].map((_, i) => (
             <React.Fragment key={i}>
@@ -112,19 +261,52 @@ export const ProjectsUpdateStep2Form = observer(
           ))}
         </>
       )
-    } else if (projectEntitiesBatches.length === 0) {
-      entitiesBatchesContent = <NoDataFound>Project data not found</NoDataFound>
     } else {
-      entitiesBatchesContent = (
+      packagesContent = (
         <>
-          {projectEntitiesBatches.map(({ name, entities }) => {
-            const entitiesBatchMenuModel = [
+          <div>
+            <div className='mb-4'>
+              <h2 className='mb-3'>Add a package</h2>
+
+              <div className='grid grid-nogutter'>
+                <div className='col-12 sm:col-6 md:col-12 lg:col-6'>
+                  <Formik
+                    initialValues={initialValuesAddPackage}
+                    validationSchema={validationSchemaAddPackage}
+                    onSubmit={({ name }, { resetForm }) => {
+                      onSubmitAddPackageHandler(name)
+                      resetForm()
+                    }}>
+                    {(formik) => (
+                      <form onSubmit={formik.handleSubmit}>
+                        <GenericChipInputText
+                          type='text'
+                          placeholder='+ Enter new package'
+                          className={classNames('w-full', {
+                            'p-invalid': isFormikFormFieldInvalid(formik, 'name'),
+                          })}
+                          {...formik.getFieldProps('name')}
+                        />
+
+                        {getFormikFormFieldErrorMessage(formik, 'name')}
+                      </form>
+                    )}
+                  </Formik>
+                </div>
+              </div>
+            </div>
+
+            <Divider />
+          </div>
+
+          {projectPackages.map((projectPackage) => {
+            const packageMenuModel = [
               {
                 items: [
                   {
                     label: 'Remove',
                     command: () => {
-                      removeEntitiesBatch(name)
+                      removePackageHandler(projectPackage.name)
                     },
                   },
                 ],
@@ -132,46 +314,88 @@ export const ProjectsUpdateStep2Form = observer(
             ]
 
             return (
-              <div key={name}>
+              <div key={projectPackage.name}>
                 <div className='flex align-items-center mb-4'>
-                  <h2 className='mr-3'>{name}</h2>
-
-                  <ActionButton
-                    icon='pi pi-plus'
-                    className='mr-1'
-                    onClick={() => {
-                      console.log(`WIP: Add batch logic`)
-                    }}
-                  />
-
-                  <MoreActionsButton menuModel={entitiesBatchMenuModel} />
+                  <h2 className='mr-3'>{projectPackage.name}</h2>
+                  <MoreActionsButton menuModel={packageMenuModel} />
                 </div>
 
                 <div>
-                  {entities.map((entity) => {
-                    const entityMenuModel = [
-                      {
-                        items: [
-                          {
-                            label: 'Remove',
-                            command: () => {
-                              removeEntityFromBatch(name, entity)
-                            },
-                          },
-                        ],
-                      },
-                    ]
-
-                    return (
-                      <GenericChip
-                        key={entity}
-                        label={entity}
-                        menuModel={entityMenuModel}
-                        className='mr-2 mb-2'
-                      />
+                  {projectPackage.entities
+                    .slice(
+                      0,
+                      projectPackage.showAllEntities
+                        ? projectPackage.entities.length
+                        : numberOfEntitiesDisplayedPerPackage,
                     )
-                  })}
+                    .map((entity) => {
+                      return (
+                        <GenericChip
+                          key={entity.id}
+                          label={entity.name}
+                          removable
+                          className='mr-2 mb-2'
+                          onClick={() => {
+                            removeEntityFromPackageHandler(projectPackage.name, entity.id)
+                          }}
+                        />
+                      )
+                    })}
+
+                  {projectPackage.showAddButton ? (
+                    <GenericChipButton
+                      label='Add more'
+                      icon='pi pi-plus'
+                      iconPos='right'
+                      className='mr-2 mb-2'
+                      onClick={() => {
+                        showAddEntityInputHandler(projectPackage.name)
+                      }}
+                    />
+                  ) : (
+                    <div className='grid grid-nogutter'>
+                      <div className='col-12 sm:col-6 md:col-12 lg:col-6'>
+                        <Formik
+                          initialValues={initialValuesAddEntity}
+                          validationSchema={validationSchemaAddEntity}
+                          onSubmit={(values, { resetForm }) => {
+                            onSubmitAddEntityHandler(projectPackage.name, values)
+                            resetForm()
+                          }}>
+                          {(formik) => (
+                            <form onSubmit={formik.handleSubmit}>
+                              <GenericChipInputText
+                                type='text'
+                                placeholder='+ Add keyword, URL, etc.'
+                                disabled={projectPackage.isLoadingAddEntity}
+                                className={classNames('w-full', {
+                                  'p-invalid': isFormikFormFieldInvalid(formik, 'name'),
+                                })}
+                                {...formik.getFieldProps('name')}
+                              />
+
+                              {getFormikFormFieldErrorMessage(formik, 'name')}
+                            </form>
+                          )}
+                        </Formik>
+                      </div>
+                    </div>
+                  )}
                 </div>
+
+                {projectPackage.entities.length > numberOfEntitiesDisplayedPerPackage ? (
+                  <Button
+                    label={
+                      projectPackage.showAllEntities
+                        ? 'Collapse'
+                        : `View all ${projectPackage.entities.length} entities`
+                    }
+                    className='p-button-text p-button-sm mt-2'
+                    onClick={() => {
+                      toggleShowAllEntitiesHandler(projectPackage.name)
+                    }}
+                  />
+                ) : null}
 
                 <Divider />
               </div>
@@ -183,7 +407,7 @@ export const ProjectsUpdateStep2Form = observer(
 
     return (
       <Card>
-        {entitiesBatchesContent}
+        {packagesContent}
 
         <div className='flex justify-content-between align-items-center'>
           <Link to={`/update-project-step-1/${targetedProjectId}`} className='text-600'>

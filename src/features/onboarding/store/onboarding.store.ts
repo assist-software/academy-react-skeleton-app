@@ -20,15 +20,15 @@ export class OnboardingStore {
     makeAutoObservable(this)
   }
 
-  setSignUpStep1FormData(signUpstep1FormData: SignUpStep1FormData) {
+  setSignUpStep1FormData = (signUpstep1FormData: SignUpStep1FormData) => {
     this.signUpstep1FormData = signUpstep1FormData
   }
 
-  setSignUpStep2FormData(signUpstep2FormData: SignUpStep2FormData) {
+  setSignUpStep2FormData = (signUpstep2FormData: SignUpStep2FormData) => {
     this.signUpstep2FormData = signUpstep2FormData
   }
 
-  resetFormsData() {
+  resetFormsData = () => {
     this.signUpstep1FormData = {
       name: '',
       email: '',

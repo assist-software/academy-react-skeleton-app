@@ -1,10 +1,20 @@
-import { useParams } from 'react-router-dom'
+import { useEffect } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 
 import { MainLayout } from 'common/components/layouts/main-layout'
 import { ProjectsUpdateStep2Form } from 'features/projects/components/projects-update-step-2-form'
 
 export const UpdateProjectStep2Page = () => {
-  const { id } = useParams()
+  const { id: idFromPath } = useParams()
+  const id = parseInt(idFromPath!)
+
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (isNaN(id)) {
+      navigate('/projects')
+    }
+  }, [id])
 
   return (
     <MainLayout>
@@ -15,7 +25,9 @@ export const UpdateProjectStep2Page = () => {
             For best results, please indicate what is relevant (or not) for your project
           </p>
 
-          <div className='mt-4'>{<ProjectsUpdateStep2Form id={id!} />}</div>
+          <div className='mt-4'>
+            <ProjectsUpdateStep2Form id={id} />
+          </div>
         </div>
       </div>
     </MainLayout>

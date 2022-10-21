@@ -1,8 +1,14 @@
 import { makeAutoObservable } from 'mobx'
 
-import { Project } from '../types/projects-models.types'
-import { ProjectStep1FormData, ProjectStep2FormData } from '../types/projects-forms.types'
+import { GetItemsBasicFilters } from 'common/types/models.types'
+import { Entity, Project } from '../types/projects-models.types'
 import {
+  AddEntityFormData,
+  ProjectStep1FormData,
+  ProjectStep2FormData,
+} from '../types/projects-forms.types'
+import {
+  createEntity,
   createProject,
   deleteProject,
   getProject,
@@ -11,6 +17,7 @@ import {
 } from '../services/projects-api.service'
 
 export class ProjectsStore {
+  totalNumberOfProjects: number = 0
   projects: Project[] = []
   project: Project | null = null
 
@@ -18,25 +25,31 @@ export class ProjectsStore {
     makeAutoObservable(this)
   }
 
-  setProjects(projects: Project[]) {
+  private setTotalNumberOfProjects(totalNumberOfProjects: number) {
+    this.totalNumberOfProjects = totalNumberOfProjects
+  }
+
+  private setProjects(projects: Project[]) {
     this.projects = projects
   }
 
-  setProject(project: Project | null) {
+  private setProject(project: Project | null) {
     this.project = project
   }
 
-  loadProjects = async () => {
+  loadProjects = async (filters: GetItemsBasicFilters) => {
     try {
-      const projects = await getProjects()
-      this.setProjects(projects)
+      const { totalNumberOfProjects, projects } = await getProjects(filters)
+      this.setTotalNumberOfProjects(totalNumberOfProjects)
+      this.setProjects([...(filters.page === 1 ? [] : this.projects), ...projects])
     } catch (error) {
+      this.setTotalNumberOfProjects(0)
       this.setProjects([])
       throw error
     }
   }
 
-  loadProject = async (projectId: string) => {
+  loadProject = async (projectId: number) => {
     try {
       const project = await getProject(projectId)
       this.setProject(project)
@@ -53,19 +66,25 @@ export class ProjectsStore {
   }
 
   modifyProject = async (
-    projectId: string,
+    projectId: number,
     projectFormData: ProjectStep1FormData | ProjectStep2FormData,
   ) => {
     const updatedProject = await updateProject(projectId, projectFormData)
     this.setProject(updatedProject)
   }
 
-  removeProject = async (projectId: string) => {
+  removeProject = async (projectId: number) => {
     await deleteProject(projectId)
+    this.setTotalNumberOfProjects(this.totalNumberOfProjects - 1)
     this.setProjects(
       this.projects.filter(({ id }) => {
         return id !== projectId
       }),
     )
+  }
+
+  addEntity = async (addEntityFormData: AddEntityFormData): Promise<Entity> => {
+    const addedEntity = await createEntity(addEntityFormData)
+    return addedEntity
   }
 }

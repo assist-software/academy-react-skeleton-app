@@ -2,20 +2,23 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { observer } from 'mobx-react-lite'
 import classNames from 'classnames'
-import { useFormik } from 'formik'
+import { Formik } from 'formik'
 import * as yup from 'yup'
 import { InputText } from 'primereact/inputtext'
 import { Button } from 'primereact/button'
 import { Dropdown } from 'primereact/dropdown'
 
 import { industries } from '../constants/onboarding.const'
-import { SignUpFormsData } from '../types/onboarding-forms.types'
+import { SignUpFormsData, SignUpStep2FormData } from '../types/onboarding-forms.types'
 import { amplifySignUp } from '../services/onboarding-api.service'
+import {
+  getFormikFormFieldErrorMessage,
+  isFormikFormFieldInvalid,
+} from 'common/services/utils.service'
 import { useStore } from 'common/store/store'
 
 export const OnboardingSignUpStep2Form = observer(() => {
-  const { notifierStore } = useStore()
-  const { onboardingStore } = useStore()
+  const { notifierStore, onboardingStore } = useStore()
 
   const { name, email, password } = onboardingStore.signUpstep1FormData
   const { company, role, industry, phone } = onboardingStore.signUpstep2FormData
@@ -29,41 +32,6 @@ export const OnboardingSignUpStep2Form = observer(() => {
       navigate('/sign-up-step-1')
     }
   }, [])
-
-  const yupSchema = yup.object().shape({
-    company: yup.string().required('Please enter your company name.'),
-    role: yup.string().required('Please enter your job title or role.'),
-    industry: yup.string().required('Please select an industry.'),
-    phone: yup.string().required('Please enter your phone number.'),
-  })
-
-  const formik = useFormik({
-    initialValues: {
-      company,
-      role,
-      industry,
-      phone,
-    },
-    validationSchema: yupSchema,
-    onSubmit: ({ company, role, industry, phone }) => {
-      onboardingStore.setSignUpStep2FormData({ company, role, industry, phone })
-
-      createAccount({
-        name,
-        email,
-        password,
-        company,
-        role,
-        industry,
-        phone,
-      })
-    },
-  })
-
-  const isFormFieldValid = (name: string): boolean =>
-    !!((formik.touched as any)[name] && (formik.errors as any)[name])
-  const getFormFieldErrorMessage = (name: string) =>
-    isFormFieldValid(name) && <small className='p-error'>{(formik.errors as any)[name]}</small>
 
   const skipAndCreateAccountHandler = () => {
     createAccount({
@@ -101,94 +69,131 @@ export const OnboardingSignUpStep2Form = observer(() => {
     }
   }
 
+  const onSubmitHandler = (signUpStep2FormData: SignUpStep2FormData): void => {
+    onboardingStore.setSignUpStep2FormData(signUpStep2FormData)
+
+    createAccount({
+      name,
+      email,
+      password,
+      ...signUpStep2FormData,
+    })
+  }
+
+  const initialValues: SignUpStep2FormData = {
+    company,
+    role,
+    industry,
+    phone,
+  }
+  const validationSchema = yup.object().shape({
+    company: yup.string().required('Please enter your company name.'),
+    role: yup.string().required('Please enter your job title or role.'),
+    industry: yup.string().required('Please select an industry.'),
+    phone: yup.string().required('Please enter your phone number.'),
+  })
+
   return (
-    <form onSubmit={formik.handleSubmit}>
-      <div className='field mb-4'>
-        <label htmlFor='company' className='block mb-2'>
-          Company
-        </label>
+    <Formik
+      initialValues={initialValues}
+      validationSchema={validationSchema}
+      onSubmit={(values) => {
+        onSubmitHandler(values)
+      }}>
+      {(formik) => (
+        <form onSubmit={formik.handleSubmit}>
+          <div className='field mb-4'>
+            <label htmlFor='company' className='block mb-2'>
+              Company
+            </label>
 
-        <InputText
-          type='text'
-          value={formik.values.company}
-          placeholder='Enter your company name'
-          id='company'
-          className={classNames('w-full', { 'p-invalid': isFormFieldValid('company') })}
-          onChange={formik.handleChange}
-        />
+            <InputText
+              type='text'
+              placeholder='Enter your company name'
+              id='company'
+              className={classNames('w-full', {
+                'p-invalid': isFormikFormFieldInvalid(formik, 'company'),
+              })}
+              {...formik.getFieldProps('company')}
+            />
 
-        {getFormFieldErrorMessage('company')}
-      </div>
+            {getFormikFormFieldErrorMessage(formik, 'company')}
+          </div>
 
-      <div className='field mb-4'>
-        <label htmlFor='role' className='block mb-2'>
-          Title/role
-        </label>
+          <div className='field mb-4'>
+            <label htmlFor='role' className='block mb-2'>
+              Title/role
+            </label>
 
-        <InputText
-          type='text'
-          value={formik.values.role}
-          placeholder='Enter your job title or role'
-          id='role'
-          className={classNames('w-full', { 'p-invalid': isFormFieldValid('role') })}
-          onChange={formik.handleChange}
-        />
+            <InputText
+              type='text'
+              placeholder='Enter your job title or role'
+              id='role'
+              className={classNames('w-full', {
+                'p-invalid': isFormikFormFieldInvalid(formik, 'role'),
+              })}
+              {...formik.getFieldProps('role')}
+            />
 
-        {getFormFieldErrorMessage('role')}
-      </div>
+            {getFormikFormFieldErrorMessage(formik, 'role')}
+          </div>
 
-      <div className='field mb-4'>
-        <label htmlFor='industry' className='block mb-2'>
-          Industry
-        </label>
+          <div className='field mb-4'>
+            <label htmlFor='industry' className='block mb-2'>
+              Industry
+            </label>
 
-        <Dropdown
-          options={industries}
-          optionLabel='label'
-          value={formik.values.industry}
-          placeholder='Select an industry'
-          id='industry'
-          className={classNames('w-full', { 'p-invalid': isFormFieldValid('industry') })}
-          onChange={formik.handleChange}
-        />
+            <Dropdown
+              options={industries}
+              optionLabel='label'
+              placeholder='Select an industry'
+              id='industry'
+              className={classNames('w-full', {
+                'p-invalid': isFormikFormFieldInvalid(formik, 'industry'),
+              })}
+              {...formik.getFieldProps('industry')}
+            />
 
-        {getFormFieldErrorMessage('industry')}
-      </div>
+            {getFormikFormFieldErrorMessage(formik, 'industry')}
+          </div>
 
-      <div className='field mb-4'>
-        <label htmlFor='phone' className='block mb-2'>
-          Phone number
-        </label>
+          <div className='field mb-4'>
+            <label htmlFor='phone' className='block mb-2'>
+              Phone number
+            </label>
 
-        <InputText
-          type='text'
-          value={formik.values.phone}
-          placeholder='Enter your 10-digit phone number'
-          id='phone'
-          className={classNames('w-full', { 'p-invalid': isFormFieldValid('phone') })}
-          onChange={formik.handleChange}
-        />
+            <InputText
+              type='text'
+              placeholder='Enter your 10-digit phone number'
+              id='phone'
+              className={classNames('w-full', {
+                'p-invalid': isFormikFormFieldInvalid(formik, 'phone'),
+              })}
+              {...formik.getFieldProps('phone')}
+            />
 
-        {getFormFieldErrorMessage('phone')}
-      </div>
+            {getFormikFormFieldErrorMessage(formik, 'phone')}
+          </div>
 
-      <Button
-        type='submit'
-        label='Create account'
-        iconPos='right'
-        loading={isLoading}
-        className='w-full mt-4'
-      />
-      <Button
-        type='button'
-        label='Skip for now'
-        iconPos='right'
-        loading={isLoading}
-        className='p-button-outlined w-full mt-4'
-        onClick={() => {
-          skipAndCreateAccountHandler()
-        }}
-      />
-    </form>
+          <Button
+            type='submit'
+            label='Create account'
+            iconPos='right'
+            loading={isLoading}
+            className='w-full mt-4'
+          />
+          <Button
+            type='button'
+            label='Skip for now'
+            iconPos='right'
+            loading={isLoading}
+            className='p-button-outlined w-full mt-4'
+            onClick={() => {
+              skipAndCreateAccountHandler()
+            }}
+          />
+        </form>
+      )}
+    </Formik>
   )
 })
