@@ -8,11 +8,11 @@ export class NotifierStore {
     makeAutoObservable(this)
   }
 
-  pushMessage(message: ToastMessage) {
+  pushMessage = (message: ToastMessage) => {
     this.messages.push(message)
   }
 
-  clearAllMessages() {
+  clearAllMessages = () => {
     this.messages = []
   }
 }

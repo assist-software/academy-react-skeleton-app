@@ -18,9 +18,25 @@
   background-color: #38aabb;
   border: 1px solid #38aabb;
   border-radius: 200px;
+  font-family: var(--font-family);
 
   &.p-button-outlined {
     color: #38aabb;
+  }
+
+  &.p-button-text {
+    color: #38aabb;
+    padding: 0;
+
+    &:enabled {
+      &:hover {
+        background-color: transparent;
+      }
+    }
+
+    .p-button-label {
+      font-weight: 400;
+    }
   }
 
   .p-button-label {

@@ -1,12 +1,17 @@
 import { useNavigate } from 'react-router-dom'
 import { observer } from 'mobx-react-lite'
 import classNames from 'classnames'
-import { useFormik } from 'formik'
+import { Formik } from 'formik'
 import * as yup from 'yup'
 import { InputText } from 'primereact/inputtext'
 import { Button } from 'primereact/button'
 
+import {
+  getFormikFormFieldErrorMessage,
+  isFormikFormFieldInvalid,
+} from 'common/services/utils.service'
 import { useStore } from 'common/store/store'
+import { SignUpStep1FormData } from '../types/onboarding-forms.types'
 
 export const OnboardingSignUpStep1Form = observer(() => {
   const { onboardingStore } = useStore()
@@ -15,7 +20,17 @@ export const OnboardingSignUpStep1Form = observer(() => {
 
   const navigate = useNavigate()
 
-  const yupSchema = yup.object().shape({
+  const onSubmitHandler = (signUpStep1FormData: SignUpStep1FormData): void => {
+    onboardingStore.setSignUpStep1FormData(signUpStep1FormData)
+    navigate('/sign-up-step-2')
+  }
+
+  const initialValues: SignUpStep1FormData = {
+    name,
+    email,
+    password,
+  }
+  const validationSchema = yup.object().shape({
     name: yup.string().required('Please enter your name.'),
     email: yup
       .string()
@@ -27,78 +42,72 @@ export const OnboardingSignUpStep1Form = observer(() => {
       .min(8, 'The password must contain at least 8 characters.'),
   })
 
-  const formik = useFormik({
-    initialValues: {
-      name,
-      email,
-      password,
-    },
-    validationSchema: yupSchema,
-    onSubmit: ({ name, email, password }) => {
-      onboardingStore.setSignUpStep1FormData({ name, email, password })
-      navigate('/sign-up-step-2')
-    },
-  })
-
-  const isFormFieldValid = (name: string): boolean =>
-    !!((formik.touched as any)[name] && (formik.errors as any)[name])
-  const getFormFieldErrorMessage = (name: string) =>
-    isFormFieldValid(name) && <small className='p-error'>{(formik.errors as any)[name]}</small>
-
   return (
-    <form onSubmit={formik.handleSubmit}>
-      <div className='field mb-4'>
-        <label htmlFor='name' className='block mb-2'>
-          Full name *
-        </label>
+    <Formik
+      initialValues={initialValues}
+      validationSchema={validationSchema}
+      onSubmit={(values) => {
+        onSubmitHandler(values)
+      }}>
+      {(formik) => (
+        <form onSubmit={formik.handleSubmit}>
+          <div className='field mb-4'>
+            <label htmlFor='name' className='block mb-2'>
+              Full name *
+            </label>
 
-        <InputText
-          type='text'
-          value={formik.values.name}
-          placeholder='Enter your first and last name'
-          id='name'
-          className={classNames('w-full', { 'p-invalid': isFormFieldValid('name') })}
-          onChange={formik.handleChange}
-        />
+            <InputText
+              type='text'
+              placeholder='Enter your first and last name'
+              id='name'
+              className={classNames('w-full', {
+                'p-invalid': isFormikFormFieldInvalid(formik, 'name'),
+              })}
+              {...formik.getFieldProps('name')}
+            />
 
-        {getFormFieldErrorMessage('name')}
-      </div>
+            {getFormikFormFieldErrorMessage(formik, 'name')}
+          </div>
 
-      <div className='field mb-4'>
-        <label htmlFor='email' className='block mb-2'>
-          Email *
-        </label>
+          <div className='field mb-4'>
+            <label htmlFor='email' className='block mb-2'>
+              Email *
+            </label>
 
-        <InputText
-          type='text'
-          value={formik.values.email}
-          placeholder='Enter your professional email'
-          id='email'
-          className={classNames('w-full', { 'p-invalid': isFormFieldValid('email') })}
-          onChange={formik.handleChange}
-        />
+            <InputText
+              type='text'
+              placeholder='Enter your professional email'
+              id='email'
+              className={classNames('w-full', {
+                'p-invalid': isFormikFormFieldInvalid(formik, 'email'),
+              })}
+              {...formik.getFieldProps('email')}
+            />
 
-        {getFormFieldErrorMessage('email')}
-      </div>
+            {getFormikFormFieldErrorMessage(formik, 'email')}
+          </div>
 
-      <div className='field mb-4'>
-        <label htmlFor='password' className='block mb-2'>
-          Password *
-        </label>
+          <div className='field mb-4'>
+            <label htmlFor='password' className='block mb-2'>
+              Password *
+            </label>
 
-        <InputText
-          type='password'
-          value={formik.values.password}
-          placeholder='Choose a password'
-          id='password'
-          className={classNames('w-full', { 'p-invalid': isFormFieldValid('password') })}
-          onChange={formik.handleChange}
-        />
+            <InputText
+              type='password'
+              placeholder='Choose a password'
+              id='password'
+              className={classNames('w-full', {
+                'p-invalid': isFormikFormFieldInvalid(formik, 'password'),
+              })}
+              {...formik.getFieldProps('password')}
+            />
 
-        {getFormFieldErrorMessage('password')}
-      </div>
+            {getFormikFormFieldErrorMessage(formik, 'password')}
+          </div>
 
-      <Button type='submit' label='Continue' className='w-full mt-4' />
-    </form>
+          <Button type='submit' label='Continue' className='w-full mt-4' />
+        </form>
+      )}
+    </Formik>
   )
 })

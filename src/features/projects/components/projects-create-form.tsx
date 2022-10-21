@@ -2,19 +2,23 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { observer } from 'mobx-react-lite'
 import classNames from 'classnames'
-import { useFormik } from 'formik'
+import { Formik } from 'formik'
 import * as yup from 'yup'
 import { Card } from 'primereact/card'
 import { InputText } from 'primereact/inputtext'
 import { Button } from 'primereact/button'
 
+import {
+  getFormikFormFieldErrorMessage,
+  isFormikFormFieldInvalid,
+} from 'common/services/utils.service'
 import { useStore } from 'common/store/store'
 import { GenericSelectButton } from 'common/components/generic-select-button'
 import { marketProblemSelectItems } from '../constants/projects.const'
+import { ProjectStep1FormData } from '../types/projects-forms.types'
 
 export const ProjectsCreateForm = observer(() => {
-  const { notifierStore } = useStore()
-  const { projectsStore } = useStore()
+  const { notifierStore, projectsStore } = useStore()
 
   const { addProject } = projectsStore
 
@@ -22,7 +26,34 @@ export const ProjectsCreateForm = observer(() => {
 
   const navigate = useNavigate()
 
-  const yupSchema = yup.object().shape({
+  const onSubmitHandler = async (projectStep1FormData: ProjectStep1FormData): Promise<void> => {
+    try {
+      setIsLoadingAddProject(true)
+
+      const { id } = await addProject(projectStep1FormData)
+
+      notifierStore.pushMessage({
+        severity: 'success',
+        detail: `The project was added successfully.`,
+      })
+
+      navigate(`/update-project-step-2/${id}`)
+    } catch (error) {
+      notifierStore.pushMessage({
+        severity: 'error',
+        detail: `An error occurred while adding the project: ${error.message}`,
+      })
+    } finally {
+      setIsLoadingAddProject(false)
+    }
+  }
+
+  const initialValues: ProjectStep1FormData = {
+    name: '',
+    marketProblem: '',
+    objective: '',
+  }
+  const validationSchema = yup.object().shape({
     name: yup.string().required('Please enter the name of the project.'),
     marketProblem: yup
       .string()
@@ -31,111 +62,88 @@ export const ProjectsCreateForm = observer(() => {
     objective: yup.string().required('Please enter your objective.'),
   })
 
-  const formik = useFormik({
-    initialValues: {
-      name: '',
-      marketProblem: '',
-      objective: '',
-    },
-    validationSchema: yupSchema,
-    onSubmit: async ({ name, marketProblem, objective }) => {
-      try {
-        setIsLoadingAddProject(true)
-
-        const { id } = await addProject({ name, marketProblem, objective })
-
-        notifierStore.pushMessage({
-          severity: 'success',
-          detail: `The project was added successfully.`,
-        })
-
-        navigate(`/update-project-step-2/${id}`)
-      } catch (error) {
-        notifierStore.pushMessage({
-          severity: 'error',
-          detail: `An error occurred while adding the project: ${error.message}`,
-        })
-      } finally {
-        setIsLoadingAddProject(false)
-      }
-    },
-  })
-
-  const isFormFieldValid = (name: string): boolean =>
-    !!((formik.touched as any)[name] && (formik.errors as any)[name])
-  const getFormFieldErrorMessage = (name: string) =>
-    isFormFieldValid(name) && <small className='p-error'>{(formik.errors as any)[name]}</small>
-
   return (
-    <form onSubmit={formik.handleSubmit}>
-      <Card>
-        <div className='field mb-6'>
-          <label htmlFor='name' className='block mb-2'>
-            Name your project
-          </label>
+    <Formik
+      initialValues={initialValues}
+      validationSchema={validationSchema}
+      onSubmit={(values) => {
+        onSubmitHandler(values)
+      }}>
+      {(formik) => (
+        <form onSubmit={formik.handleSubmit}>
+          <Card>
+            <div className='field mb-6'>
+              <label htmlFor='name' className='block mb-2'>
+                Name your project
+              </label>
 
-          <InputText
-            type='text'
-            value={formik.values.name}
-            id='name'
-            className={classNames('w-full', { 'p-invalid': isFormFieldValid('name') })}
-            onChange={formik.handleChange}
-          />
+              <InputText
+                type='text'
+                id='name'
+                className={classNames('w-full', {
+                  'p-invalid': isFormikFormFieldInvalid(formik, 'name'),
+                })}
+                {...formik.getFieldProps('name')}
+              />
 
-          {getFormFieldErrorMessage('name')}
-        </div>
+              {getFormikFormFieldErrorMessage(formik, 'name')}
+            </div>
 
-        <div className='field mb-6'>
-          <label htmlFor='marketProblem' className='block mb-2'>
-            What type of market problem?
-          </label>
+            <div className='field mb-6'>
+              <label htmlFor='marketProblem' className='block mb-2'>
+                What type of market problem?
+              </label>
 
-          <GenericSelectButton
-            value={formik.values.marketProblem}
-            options={marketProblemSelectItems}
-            itemTemplate={({ icon, label }) => (
-              <div className='w-full flex flex-column'>
-                <i className={classNames(icon, 'text-lg', 'mb-2')}></i>
-                <span>{label}</span>
-              </div>
-            )}
-            id='marketProblem'
-            className={classNames({ 'p-invalid': isFormFieldValid('marketProblem') })}
-            onChange={formik.handleChange}
-          />
+              <GenericSelectButton
+                options={marketProblemSelectItems}
+                itemTemplate={({ icon, label }) => (
+                  <div className='w-full flex flex-column'>
+                    <i className={classNames(icon, 'text-lg', 'mb-2')}></i>
+                    <span>{label}</span>
+                  </div>
+                )}
+                id='marketProblem'
+                className={classNames({
+                  'p-invalid': isFormikFormFieldInvalid(formik, 'marketProblem'),
+                })}
+                {...formik.getFieldProps('marketProblem')}
+              />
 
-          {getFormFieldErrorMessage('marketProblem')}
-        </div>
+              {getFormikFormFieldErrorMessage(formik, 'marketProblem')}
+            </div>
 
-        <div className='field'>
-          <label htmlFor='objective' className='block mb-2'>
-            What’s your objective?
-          </label>
+            <div className='field'>
+              <label htmlFor='objective' className='block mb-2'>
+                What’s your objective?
+              </label>
 
-          <InputText
-            type='text'
-            value={formik.values.objective}
-            id='objective'
-            className={classNames('w-full', { 'p-invalid': isFormFieldValid('objective') })}
-            onChange={formik.handleChange}
-          />
+              <InputText
+                type='text'
+                id='objective'
+                className={classNames('w-full', {
+                  'p-invalid': isFormikFormFieldInvalid(formik, 'objective'),
+                })}
+                {...formik.getFieldProps('objective')}
+              />
 
-          {getFormFieldErrorMessage('objective')}
-        </div>
-      </Card>
+              {getFormikFormFieldErrorMessage(formik, 'objective')}
+            </div>
+          </Card>
 
-      <div className='flex justify-content-between align-items-baseline mt-5'>
-        <Link to='/projects' className='text-600'>
-          &#60; Back to projects list
-        </Link>
+          <div className='flex justify-content-between align-items-baseline mt-5'>
+            <Link to='/projects' className='text-600'>
+              &#60; Back to projects list
+            </Link>
 
-        <Button
-          type='submit'
-          label='Create new project'
-          iconPos='right'
-          loading={isLoadingAddProject}
-        />
-      </div>
-    </form>
+            <Button
+              type='submit'
+              label='Create new project'
+              iconPos='right'
+              loading={isLoadingAddProject}
+            />
+          </div>
+        </form>
+      )}
+    </Formik>
   )
 })

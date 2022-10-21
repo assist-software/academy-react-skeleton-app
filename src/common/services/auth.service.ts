@@ -1,4 +1,4 @@
-import { Amplify } from 'aws-amplify'
+import { Amplify, Auth } from 'aws-amplify'
 
 import { AuthUserData /*, CognitoUserAttribute, CognitoUserData*/ } from 'common/types/auth.types'
 import { Roles } from 'router/constants/roles.const'
@@ -24,17 +24,9 @@ export const getAuthenticatedUserRole = (): string => {
   return window.localStorage.getItem('userRole') || Roles.Public
 }
 
-export const getAuthIdToken = (): string => {
-  const { REACT_APP_AWS_COGNITO_USER_POOL_WEB_CLIENT_ID: userPoolWebClientId } = process.env
-  const localStorageKeyPrefix = `CognitoIdentityServiceProvider.${userPoolWebClientId}`
-
-  const lastAuthUser = window.localStorage.getItem(`${localStorageKeyPrefix}.LastAuthUser`)
-
-  if (!lastAuthUser) {
-    return ''
-  }
-
-  return window.localStorage.getItem(`${localStorageKeyPrefix}.${lastAuthUser}.idToken`) || ''
+export const getAuthIdToken = async (): Promise<string> => {
+  const currentSession = await Auth.currentSession()
+  return currentSession.getIdToken().getJwtToken()
 }
 
 export const getAuthUserData = (): AuthUserData | null => {

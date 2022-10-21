@@ -1,4 +1,5 @@
 // import { Auth } from 'aws-amplify'
+// import { nanoid } from 'nanoid'
 
 import { SignInFormData, SignUpFormsData } from '../types/onboarding-forms.types'
 
@@ -11,10 +12,8 @@ export const amplifySignUp = async ({
   industry,
   phone,
 }: SignUpFormsData) => {
-  // const username = email.replace('@', '.')
-
   // await Auth.signUp({
-  //   username,
+  //   username: nanoid(),
   //   password,
   //   attributes: {
   //     name,
@@ -55,8 +54,7 @@ export const amplifyConfirmSignUp = async (username: string, code: string) => {
 }
 
 export const amplifySignIn = async ({ email, password }: SignInFormData) => {
-  // const username = email.replace('@', '.')
-  // await Auth.signIn(username, password)
+  // await Auth.signIn(email, password)
   // window.localStorage.setItem('userRole', 'Admin')
 
   return new Promise<undefined>((resolve, reject) => {
@@ -72,8 +70,7 @@ export const amplifySignIn = async ({ email, password }: SignInFormData) => {
 }
 
 export const amplifyForgotPassword = async (email: string) => {
-  // const username = email.replace('@', '.')
-  // await Auth.forgotPassword(username)
+  // await Auth.forgotPassword(email)
 
   return new Promise<undefined>((resolve) => {
     setTimeout(() => {

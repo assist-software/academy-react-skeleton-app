@@ -3,8 +3,8 @@ import { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'ax
 import { getAuthIdToken } from './auth.service'
 import { amplifySignOut } from 'features/onboarding/services/onboarding-api.service'
 
-const onRequest = (config: AxiosRequestConfig): AxiosRequestConfig => {
-  const idToken = getAuthIdToken()
+const onRequest = async (config: AxiosRequestConfig): Promise<AxiosRequestConfig> => {
+  const idToken = await getAuthIdToken()
   const customHeaders = {
     ...config.headers,
     Authorization: `Bearer ${idToken}`,

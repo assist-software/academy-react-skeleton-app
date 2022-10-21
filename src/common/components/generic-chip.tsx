@@ -1,42 +1,29 @@
-import { HTMLAttributes } from 'react'
 import styled from 'styled-components'
-import { MenuItem } from 'primereact/menuitem'
+import { Chip, ChipProps } from 'primereact/chip'
 
-import { removeObjectKeys } from 'common/services/utils.service'
-import { MoreActionsButton } from './more-actions-button'
-
-interface GenericChipProps extends HTMLAttributes<HTMLElement> {
-  label: string
-  menuModel: MenuItem[]
+export const GenericChip = (props: ChipProps) => {
+  return <StyledChip {...props} />
 }
 
-export const GenericChip = (props: GenericChipProps) => {
-  const htmlProps = removeObjectKeys(props, ['label', 'menuModel'])
-
-  return (
-    <StyledDiv {...htmlProps}>
-      <span className='mr-2'>{props.label}</span>
-      <MoreActionsButton menuModel={props.menuModel} />
-    </StyledDiv>
-  )
-}
-
-const StyledDiv = styled.div`
-  align-items: center;
+const StyledChip = styled(Chip)`
+  background-color: #fff;
   border: 1px solid #aaa;
   border-radius: 20px;
   color: #000;
-  display: inline-flex;
   font-size: 14px;
   padding: 5px 10px;
 
-  .p-button.p-button-icon-only.p-button-rounded {
-    height: 14px;
-    padding: 0;
-    width: 14px;
+  .p-chip-text {
+    margin-bottom: 0;
+    margin-top: 0;
+  }
 
-    .pi {
-      font-size: 9px;
+  .p-chip-remove-icon {
+    color: #b5b5b5;
+    font-size: 14px;
+
+    &::before {
+      content: '✕';
     }
   }
 `

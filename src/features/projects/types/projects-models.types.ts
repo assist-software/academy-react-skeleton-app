@@ -1,16 +1,26 @@
-export interface EntitiesBatch {
+export interface Entity {
+  id: number
   name: string
-  entities: string[]
+}
+
+export interface Package {
+  id: number
+  name: string
+  entities: Entity[]
 }
 
 export interface Project {
-  id: string
+  id: number
   name: string
   marketProblem: string
   objective: string
-  createdBy: string
-  updatedAt: number
-  numberOfDocuments: number
   collaborators: string[]
-  entitiesBatches: EntitiesBatch[]
+  updatedAt: number
+  packages: Package[]
+  numberOfDocuments: number
+}
+
+export interface GetProjectsApiResponse {
+  totalNumberOfProjects: number
+  projects: Project[]
 }
