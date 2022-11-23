@@ -1,7 +1,5 @@
 import { nanoid } from 'nanoid'
 
-import { GetItemsBasicFilters } from 'common/types/models.types'
-
 export const addKeysToListItems = (list: any[]) => {
   const listWithKeys = list.map((item) => ({ ...item, key: nanoid() }))
   return listWithKeys
@@ -26,15 +24,4 @@ export const getFormikFormFieldErrorMessage = (formik: any, name: string) => {
       <small className='p-error'>{formik.errors[name]}</small>
     )
   )
-}
-
-export const generateFiltersQueryString = (filters: GetItemsBasicFilters): string => {
-  return Object.entries(filters)
-    .reduce((queryStringComponents, [filterName, filterValue]) => {
-      return [
-        ...queryStringComponents,
-        `${encodeURIComponent(filterName)}=${encodeURIComponent(filterValue)}`,
-      ]
-    }, [] as string[])
-    .join('&')
 }

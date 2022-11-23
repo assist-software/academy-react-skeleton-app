@@ -33,12 +33,9 @@ interface ProjectsUpdateStep2FormProps {
 export const ProjectsUpdateStep2Form = observer(
   ({ id: targetedProjectId }: ProjectsUpdateStep2FormProps) => {
     const { notifierStore, projectsStore } = useStore()
-
-    const { addEntity, modifyProject, project } = projectsStore
+    const { addEntity, modifyProject, project, wipLoadProject, wipModifyProject } = projectsStore
 
     const [projectPackages, setProjectPackages] = useState<PackageFormData[]>([])
-    const [isLoadingProject, setIsLoadingProject] = useState(true)
-    const [isLoadingModifyProject, setIsLoadingModifyProject] = useState(false)
 
     const navigate = useNavigate()
 
@@ -49,12 +46,11 @@ export const ProjectsUpdateStep2Form = observer(
             await projectsStore.loadProject(targetedProjectId)
           }
         } catch (error) {
+          const errorMessage = error?.response?.data?.message || error.message
           notifierStore.pushMessage({
             severity: 'error',
-            detail: `An error occurred while loading the project: ${error.message}`,
+            detail: `An error occurred while loading the project: ${errorMessage}`,
           })
-        } finally {
-          setIsLoadingProject(false)
         }
       })()
     }, [])
@@ -75,8 +71,6 @@ export const ProjectsUpdateStep2Form = observer(
 
     const modifyProjectHandler = async () => {
       try {
-        setIsLoadingModifyProject(true)
-
         await modifyProject(targetedProjectId, { packages: projectPackages })
 
         notifierStore.pushMessage({
@@ -86,12 +80,11 @@ export const ProjectsUpdateStep2Form = observer(
 
         navigate('/projects')
       } catch (error) {
+        const errorMessage = error?.response?.data?.message || error.message
         notifierStore.pushMessage({
           severity: 'error',
-          detail: `An error occurred while updating the project: ${error.message}`,
+          detail: `An error occurred while updating the project: ${errorMessage}`,
         })
-      } finally {
-        setIsLoadingModifyProject(false)
       }
     }
 
@@ -187,9 +180,10 @@ export const ProjectsUpdateStep2Form = observer(
           detail: `The entity was added successfully.`,
         })
       } catch (error) {
+        const errorMessage = error?.response?.data?.message || error.message
         notifierStore.pushMessage({
           severity: 'error',
-          detail: `An error occurred while adding the entity: ${error.message}`,
+          detail: `An error occurred while adding the entity: ${errorMessage}`,
         })
       } finally {
         toggleIsLoadingAddEntityPackage(packageName)
@@ -250,7 +244,7 @@ export const ProjectsUpdateStep2Form = observer(
 
     let packagesContent: JSX.Element
 
-    if (isLoadingProject || projectPackages.length === 0) {
+    if (wipLoadProject || projectPackages.length === 0) {
       packagesContent = (
         <>
           {[...Array(5)].map((_, i) => (
@@ -418,7 +412,7 @@ export const ProjectsUpdateStep2Form = observer(
             type='button'
             label='Get data'
             iconPos='right'
-            loading={isLoadingModifyProject}
+            loading={wipModifyProject}
             onClick={() => {
               modifyProjectHandler()
             }}

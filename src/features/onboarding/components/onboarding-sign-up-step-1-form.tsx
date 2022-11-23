@@ -15,7 +15,6 @@ import { SignUpStep1FormData } from '../types/onboarding-forms.types'
 
 export const OnboardingSignUpStep1Form = observer(() => {
   const { onboardingStore } = useStore()
-
   const { name, email, password } = onboardingStore.signUpstep1FormData
 
   const navigate = useNavigate()

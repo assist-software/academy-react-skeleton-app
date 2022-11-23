@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { observer } from 'mobx-react-lite'
 import classNames from 'classnames'
@@ -25,11 +25,7 @@ interface ProjectsUpdateStep1FormProps {
 export const ProjectsUpdateStep1Form = observer(
   ({ id: targetedProjectId }: ProjectsUpdateStep1FormProps) => {
     const { notifierStore, projectsStore } = useStore()
-
-    const { modifyProject, project } = projectsStore
-
-    const [isLoadingProject, setIsLoadingProject] = useState(true)
-    const [isLoadingModifyProject, setIsLoadingModifyProject] = useState(false)
+    const { modifyProject, project, wipLoadProject, wipModifyProject } = projectsStore
 
     const navigate = useNavigate()
 
@@ -40,20 +36,17 @@ export const ProjectsUpdateStep1Form = observer(
             await projectsStore.loadProject(targetedProjectId)
           }
         } catch (error) {
+          const errorMessage = error?.response?.data?.message || error.message
           notifierStore.pushMessage({
             severity: 'error',
-            detail: `An error occurred while loading the project: ${error.message}`,
+            detail: `An error occurred while loading the project: ${errorMessage}`,
           })
-        } finally {
-          setIsLoadingProject(false)
         }
       })()
     }, [])
 
     const onSubmitHandler = async (projectStep1FormData: ProjectStep1FormData): Promise<void> => {
       try {
-        setIsLoadingModifyProject(true)
-
         await modifyProject(targetedProjectId, projectStep1FormData)
 
         notifierStore.pushMessage({
@@ -63,12 +56,11 @@ export const ProjectsUpdateStep1Form = observer(
 
         navigate(`/update-project-step-2/${targetedProjectId}`)
       } catch (error) {
+        const errorMessage = error?.response?.data?.message || error.message
         notifierStore.pushMessage({
           severity: 'error',
-          detail: `An error occurred while updating the project: ${error.message}`,
+          detail: `An error occurred while updating the project: ${errorMessage}`,
         })
-      } finally {
-        setIsLoadingModifyProject(false)
       }
     }
 
@@ -88,7 +80,7 @@ export const ProjectsUpdateStep1Form = observer(
 
     let formContent: JSX.Element
 
-    if (isLoadingProject || project === null) {
+    if (wipLoadProject || project === null) {
       formContent = (
         <Card>
           <Skeleton height='90px' className='mb-4' />
@@ -171,12 +163,7 @@ export const ProjectsUpdateStep1Form = observer(
                   &#60; Back to projects list
                 </Link>
 
-                <Button
-                  type='submit'
-                  label='Update'
-                  iconPos='right'
-                  loading={isLoadingModifyProject}
-                />
+                <Button type='submit' label='Update' iconPos='right' loading={wipModifyProject} />
               </div>
             </form>
           )}

@@ -1,13 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { observer } from 'mobx-react-lite'
 
 import { useStore } from 'common/store/store'
-import { amplifyConfirmSignUp } from '../services/onboarding-api.service'
 
 export const OnboardingSignUpConfirm = observer(() => {
-  const { notifierStore } = useStore()
-
-  const [isLoading, setIsLoading] = useState(true)
+  const { notifierStore, onboardingStore } = useStore()
+  const { confirmSignUp, wipConfirmSignUp } = onboardingStore
 
   useEffect(() => {
     ;(async () => {
@@ -19,13 +17,12 @@ export const OnboardingSignUpConfirm = observer(() => {
           throw new Error('The URL is not valid.')
         }
 
-        await amplifyConfirmSignUp(username, code)
-
-        setIsLoading(false)
+        await confirmSignUp(username, code)
       } catch (error) {
+        const errorMessage = error?.response?.data?.message || error.message
         notifierStore.pushMessage({
           severity: 'error',
-          detail: `An error occurred while confirming the account: ${error.message}`,
+          detail: `An error occurred while confirming the account: ${errorMessage}`,
         })
       }
     })()
@@ -33,7 +30,7 @@ export const OnboardingSignUpConfirm = observer(() => {
 
   return (
     <div className='text-center mt-6'>
-      {isLoading ? (
+      {wipConfirmSignUp ? (
         <i className='pi pi-spin pi-spinner text-6xl text-600'></i>
       ) : (
         <i className='pi pi-check-circle text-6xl text-green-500'></i>

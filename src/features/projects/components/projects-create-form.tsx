@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { observer } from 'mobx-react-lite'
 import classNames from 'classnames'
@@ -19,17 +18,12 @@ import { ProjectStep1FormData } from '../types/projects-forms.types'
 
 export const ProjectsCreateForm = observer(() => {
   const { notifierStore, projectsStore } = useStore()
-
-  const { addProject } = projectsStore
-
-  const [isLoadingAddProject, setIsLoadingAddProject] = useState(false)
+  const { addProject, wipAddProject } = projectsStore
 
   const navigate = useNavigate()
 
   const onSubmitHandler = async (projectStep1FormData: ProjectStep1FormData): Promise<void> => {
     try {
-      setIsLoadingAddProject(true)
-
       const { id } = await addProject(projectStep1FormData)
 
       notifierStore.pushMessage({
@@ -39,12 +33,11 @@ export const ProjectsCreateForm = observer(() => {
 
       navigate(`/update-project-step-2/${id}`)
     } catch (error) {
+      const errorMessage = error?.response?.data?.message || error.message
       notifierStore.pushMessage({
         severity: 'error',
-        detail: `An error occurred while adding the project: ${error.message}`,
+        detail: `An error occurred while adding the project: ${errorMessage}`,
       })
-    } finally {
-      setIsLoadingAddProject(false)
     }
   }
 
@@ -139,7 +132,7 @@ export const ProjectsCreateForm = observer(() => {
               type='submit'
               label='Create new project'
               iconPos='right'
-              loading={isLoadingAddProject}
+              loading={wipAddProject}
             />
           </div>
         </form>

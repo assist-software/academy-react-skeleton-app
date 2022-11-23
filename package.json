@@ -51,7 +51,13 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "start-env": "sh -ac '. ./.env.${REACT_APP_ENV}.local; react-scripts start'",
+    "start-development": "REACT_APP_ENV=development npm run start-env",
+    "start-staging": "REACT_APP_ENV=staging npm run start-env",
     "build": "react-scripts build",
+    "build-env": "sh -ac '. ./.env.${REACT_APP_ENV}.local; react-scripts build'",
+    "build-development": "REACT_APP_ENV=development npm run build-env",
+    "build-staging": "REACT_APP_ENV=staging npm run build-env",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

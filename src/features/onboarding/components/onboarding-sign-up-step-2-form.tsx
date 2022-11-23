@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { observer } from 'mobx-react-lite'
 import classNames from 'classnames'
@@ -10,7 +10,6 @@ import { Dropdown } from 'primereact/dropdown'
 
 import { industries } from '../constants/onboarding.const'
 import { SignUpFormsData, SignUpStep2FormData } from '../types/onboarding-forms.types'
-import { amplifySignUp } from '../services/onboarding-api.service'
 import {
   getFormikFormFieldErrorMessage,
   isFormikFormFieldInvalid,
@@ -19,11 +18,9 @@ import { useStore } from 'common/store/store'
 
 export const OnboardingSignUpStep2Form = observer(() => {
   const { notifierStore, onboardingStore } = useStore()
-
+  const { signUp, wipSignUp } = onboardingStore
   const { name, email, password } = onboardingStore.signUpstep1FormData
   const { company, role, industry, phone } = onboardingStore.signUpstep2FormData
-
-  const [isLoading, setIsLoading] = useState(false)
 
   const navigate = useNavigate()
 
@@ -47,9 +44,7 @@ export const OnboardingSignUpStep2Form = observer(() => {
 
   const createAccount = async (userData: SignUpFormsData) => {
     try {
-      setIsLoading(true)
-
-      await amplifySignUp(userData)
+      await signUp(userData)
 
       onboardingStore.resetFormsData()
 
@@ -60,12 +55,11 @@ export const OnboardingSignUpStep2Form = observer(() => {
 
       navigate('/sign-in')
     } catch (error) {
+      const errorMessage = error?.response?.data?.message || error.message
       notifierStore.pushMessage({
         severity: 'error',
-        detail: `An error occurred while creating the account: ${error.message}`,
+        detail: `An error occurred while creating the account: ${errorMessage}`,
       })
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -179,14 +173,14 @@ export const OnboardingSignUpStep2Form = observer(() => {
             type='submit'
             label='Create account'
             iconPos='right'
-            loading={isLoading}
+            loading={wipSignUp}
             className='w-full mt-4'
           />
           <Button
             type='button'
             label='Skip for now'
             iconPos='right'
-            loading={isLoading}
+            loading={wipSignUp}
             className='p-button-outlined w-full mt-4'
             onClick={() => {
               skipAndCreateAccountHandler()
