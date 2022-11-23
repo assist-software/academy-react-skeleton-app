@@ -19,9 +19,10 @@ export const OnboardingSignUpConfirm = observer(() => {
 
         await confirmSignUp(username, code)
       } catch (error) {
+        const errorMessage = error?.response?.data?.message || error.message
         notifierStore.pushMessage({
           severity: 'error',
-          detail: `An error occurred while confirming the account: ${error.message}`,
+          detail: `An error occurred while confirming the account: ${errorMessage}`,
         })
       }
     })()

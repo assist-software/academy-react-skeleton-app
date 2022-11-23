@@ -17,9 +17,10 @@ export const OnboardingSignOutWrapper = observer(({ children }: ChildrenNode) =>
 
       navigate('/sign-in')
     } catch (error) {
+      const errorMessage = error?.response?.data?.message || error.message
       notifierStore.pushMessage({
         severity: 'error',
-        detail: `An error occurred while signing out: ${error.message}`,
+        detail: `An error occurred while signing out: ${errorMessage}`,
       })
     }
   }

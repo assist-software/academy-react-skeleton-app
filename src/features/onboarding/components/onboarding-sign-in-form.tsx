@@ -25,9 +25,10 @@ export const OnboardingSignInForm = observer(() => {
 
       navigate('/projects')
     } catch (error) {
+      const errorMessage = error?.response?.data?.message || error.message
       notifierStore.pushMessage({
         severity: 'error',
-        detail: `An error occurred while signing in: ${error.message}`,
+        detail: `An error occurred while signing in: ${errorMessage}`,
       })
     }
   }

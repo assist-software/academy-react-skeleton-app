@@ -33,9 +33,10 @@ export const ProjectsCreateForm = observer(() => {
 
       navigate(`/update-project-step-2/${id}`)
     } catch (error) {
+      const errorMessage = error?.response?.data?.message || error.message
       notifierStore.pushMessage({
         severity: 'error',
-        detail: `An error occurred while adding the project: ${error.message}`,
+        detail: `An error occurred while adding the project: ${errorMessage}`,
       })
     }
   }

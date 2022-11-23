@@ -44,9 +44,10 @@ export const ProjectsList = observer(() => {
         detail: `The project was deleted successfully.`,
       })
     } catch (error) {
+      const errorMessage = error?.response?.data?.message || error.message
       notifierStore.pushMessage({
         severity: 'error',
-        detail: `An error occurred while deleting the project: ${error.message}`,
+        detail: `An error occurred while deleting the project: ${errorMessage}`,
       })
     }
   }
@@ -60,9 +61,10 @@ export const ProjectsList = observer(() => {
 
       setNextPage((prevNextPage) => prevNextPage + 1)
     } catch (error) {
+      const errorMessage = error?.response?.data?.message || error.message
       notifierStore.pushMessage({
         severity: 'error',
-        detail: `An error occurred while loading the projects: ${error.message}`,
+        detail: `An error occurred while loading the projects: ${errorMessage}`,
       })
     }
   }

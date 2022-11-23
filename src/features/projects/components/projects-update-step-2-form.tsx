@@ -46,9 +46,10 @@ export const ProjectsUpdateStep2Form = observer(
             await projectsStore.loadProject(targetedProjectId)
           }
         } catch (error) {
+          const errorMessage = error?.response?.data?.message || error.message
           notifierStore.pushMessage({
             severity: 'error',
-            detail: `An error occurred while loading the project: ${error.message}`,
+            detail: `An error occurred while loading the project: ${errorMessage}`,
           })
         }
       })()
@@ -79,9 +80,10 @@ export const ProjectsUpdateStep2Form = observer(
 
         navigate('/projects')
       } catch (error) {
+        const errorMessage = error?.response?.data?.message || error.message
         notifierStore.pushMessage({
           severity: 'error',
-          detail: `An error occurred while updating the project: ${error.message}`,
+          detail: `An error occurred while updating the project: ${errorMessage}`,
         })
       }
     }

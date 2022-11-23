@@ -55,9 +55,10 @@ export const OnboardingSignUpStep2Form = observer(() => {
 
       navigate('/sign-in')
     } catch (error) {
+      const errorMessage = error?.response?.data?.message || error.message
       notifierStore.pushMessage({
         severity: 'error',
-        detail: `An error occurred while creating the account: ${error.message}`,
+        detail: `An error occurred while creating the account: ${errorMessage}`,
       })
     }
   }

@@ -37,9 +37,10 @@ export const OnboardingResetPasswordForm = observer(() => {
 
       navigate('/sign-in')
     } catch (error) {
+      const errorMessage = error?.response?.data?.message || error.message
       notifierStore.pushMessage({
         severity: 'error',
-        detail: `An error occurred while resetting the password: ${error.message}`,
+        detail: `An error occurred while resetting the password: ${errorMessage}`,
       })
     }
   }

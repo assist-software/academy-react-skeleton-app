@@ -25,9 +25,10 @@ export const OnboardingForgotPasswordForm = observer(() => {
         detail: `An email has been sent to the address you entered. Please access the link in the email to reset your password.`,
       })
     } catch (error) {
+      const errorMessage = error?.response?.data?.message || error.message
       notifierStore.pushMessage({
         severity: 'error',
-        detail: `An error occurred: ${error.message}`,
+        detail: `An error occurred: ${errorMessage}`,
       })
     }
   }
