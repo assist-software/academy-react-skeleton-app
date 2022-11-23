@@ -1,7 +1,6 @@
 // import axios from 'axios'
 
 import { GetItemsBasicFilters } from 'common/types/models.types'
-// import { generateFiltersQueryString } from 'common/services/utils.service'
 import { Entity, GetProjectsApiResponse, Project } from '../types/projects-models.types'
 import {
   AddEntityFormData,
@@ -14,9 +13,9 @@ import {
 export const getProjects = async (
   filters: GetItemsBasicFilters,
 ): Promise<GetProjectsApiResponse> => {
-  // const { data } = await axios.get<GetProjectsApiResponse>(
-  //   `${BASE_URL}/projects?${generateFiltersQueryString(filters)}`,
-  // )
+  // const { data } = await axios.get<GetProjectsApiResponse>(`${BASE_URL}/projects`, {
+  //   params: filters,
+  // })
   // return data
 
   return new Promise<GetProjectsApiResponse>((resolve) => {

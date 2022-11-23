@@ -180,9 +180,10 @@ export const ProjectsUpdateStep2Form = observer(
           detail: `The entity was added successfully.`,
         })
       } catch (error) {
+        const errorMessage = error?.response?.data?.message || error.message
         notifierStore.pushMessage({
           severity: 'error',
-          detail: `An error occurred while adding the entity: ${error.message}`,
+          detail: `An error occurred while adding the entity: ${errorMessage}`,
         })
       } finally {
         toggleIsLoadingAddEntityPackage(packageName)
