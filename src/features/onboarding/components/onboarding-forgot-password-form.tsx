@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { observer } from 'mobx-react-lite'
 import classNames from 'classnames'
 import { Formik } from 'formik'
@@ -6,7 +5,6 @@ import * as yup from 'yup'
 import { InputText } from 'primereact/inputtext'
 import { Button } from 'primereact/button'
 
-import { amplifyForgotPassword } from '../services/onboarding-api.service'
 import {
   getFormikFormFieldErrorMessage,
   isFormikFormFieldInvalid,
@@ -15,15 +13,12 @@ import { useStore } from 'common/store/store'
 import { ForgotPasswordFormData } from '../types/onboarding-forms.types'
 
 export const OnboardingForgotPasswordForm = observer(() => {
-  const { notifierStore } = useStore()
-
-  const [isLoading, setIsLoading] = useState(false)
+  const { notifierStore, onboardingStore } = useStore()
+  const { forgotPassword, wipForgotPassword } = onboardingStore
 
   const onSubmitHandler = async ({ email }: ForgotPasswordFormData): Promise<void> => {
     try {
-      setIsLoading(true)
-
-      await amplifyForgotPassword(email)
+      await forgotPassword(email)
 
       notifierStore.pushMessage({
         severity: 'success',
@@ -34,8 +29,6 @@ export const OnboardingForgotPasswordForm = observer(() => {
         severity: 'error',
         detail: `An error occurred: ${error.message}`,
       })
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -80,7 +73,7 @@ export const OnboardingForgotPasswordForm = observer(() => {
             type='submit'
             label='Send email'
             iconPos='right'
-            loading={isLoading}
+            loading={wipForgotPassword}
             className='w-full mt-4'
           />
         </form>

@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { observer } from 'mobx-react-lite'
 import classNames from 'classnames'
@@ -7,7 +6,6 @@ import * as yup from 'yup'
 import { InputText } from 'primereact/inputtext'
 import { Button } from 'primereact/button'
 
-import { amplifyForgotPasswordSubmit } from '../services/onboarding-api.service'
 import {
   getFormikFormFieldErrorMessage,
   isFormikFormFieldInvalid,
@@ -16,16 +14,13 @@ import { useStore } from 'common/store/store'
 import { ResetPasswordFormData } from '../types/onboarding-forms.types'
 
 export const OnboardingResetPasswordForm = observer(() => {
-  const { notifierStore } = useStore()
-
-  const [isLoading, setIsLoading] = useState(false)
+  const { notifierStore, onboardingStore } = useStore()
+  const { forgotPasswordSubmit, wipForgotPasswordSubmit } = onboardingStore
 
   const navigate = useNavigate()
 
   const onSubmitHandler = async ({ password }: ResetPasswordFormData): Promise<void> => {
     try {
-      setIsLoading(true)
-
       const queryParams = new URLSearchParams(window.location.search)
       const username = queryParams.get('username')
       const code = queryParams.get('code')
@@ -33,7 +28,7 @@ export const OnboardingResetPasswordForm = observer(() => {
         throw new Error('The URL is not valid.')
       }
 
-      await amplifyForgotPasswordSubmit(username, code, password)
+      await forgotPasswordSubmit(username, code, password)
 
       notifierStore.pushMessage({
         severity: 'success',
@@ -46,8 +41,6 @@ export const OnboardingResetPasswordForm = observer(() => {
         severity: 'error',
         detail: `An error occurred while resetting the password: ${error.message}`,
       })
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -115,7 +108,7 @@ export const OnboardingResetPasswordForm = observer(() => {
             type='submit'
             label='Reset password'
             iconPos='right'
-            loading={isLoading}
+            loading={wipForgotPasswordSubmit}
             className='w-full mt-4'
           />
         </form>

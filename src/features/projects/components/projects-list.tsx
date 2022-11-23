@@ -17,27 +17,26 @@ import { Project } from '../types/projects-models.types'
 
 export const ProjectsList = observer(() => {
   const { notifierStore, projectsStore } = useStore()
-
-  const { projects, removeProject, totalNumberOfProjects } = projectsStore
+  const {
+    loadProjects,
+    projects,
+    removeProject,
+    totalNumberOfProjects,
+    wipLoadProjects,
+    wipLoadProjectsPage,
+    wipRemoveProjectIds,
+  } = projectsStore
 
   const [nextPage, setNextPage] = useState(1)
-  const [isLoadingProjects, setIsLoadingProjects] = useState(true)
-  const [isLoadingProjectsPage, setIsLoadingProjectsPage] = useState(true)
-  const [isLoadingProjectIdsToDelete, setIsLoadingProjectIdsToDelete] = useState<number[]>([])
 
   const navigate = useNavigate()
 
   useEffect(() => {
-    loadProjects()
+    loadProjectsPage()
   }, [])
 
   const deleteProjectHandler = async (projectId: number) => {
     try {
-      setIsLoadingProjectIdsToDelete((prevIsLoadingProjectIdsToDelete) => [
-        ...prevIsLoadingProjectIdsToDelete,
-        projectId,
-      ])
-
       await removeProject(projectId)
 
       notifierStore.pushMessage({
@@ -49,20 +48,12 @@ export const ProjectsList = observer(() => {
         severity: 'error',
         detail: `An error occurred while deleting the project: ${error.message}`,
       })
-    } finally {
-      setIsLoadingProjectIdsToDelete((prevIsLoadingProjectIdsToDelete) =>
-        prevIsLoadingProjectIdsToDelete.filter((id) => {
-          return id !== projectId
-        }),
-      )
     }
   }
 
-  const loadProjects = async () => {
+  const loadProjectsPage = async () => {
     try {
-      setIsLoadingProjectsPage(true)
-
-      await projectsStore.loadProjects({
+      await loadProjects({
         page: nextPage,
         pageSize: numberOfProjectsDisplayedPerPage,
       })
@@ -73,9 +64,6 @@ export const ProjectsList = observer(() => {
         severity: 'error',
         detail: `An error occurred while loading the projects: ${error.message}`,
       })
-    } finally {
-      setIsLoadingProjects(false)
-      setIsLoadingProjectsPage(false)
     }
   }
 
@@ -83,9 +71,9 @@ export const ProjectsList = observer(() => {
     nextPage <= Math.ceil(totalNumberOfProjects / numberOfProjectsDisplayedPerPage)
 
   const [sentryRef] = useInfiniteScroll({
-    loading: isLoadingProjectsPage,
+    loading: wipLoadProjectsPage,
     hasNextPage: thereAreProjectsToLoad,
-    onLoadMore: loadProjects,
+    onLoadMore: loadProjectsPage,
   })
 
   const columns: ColumnProps[] = [
@@ -147,7 +135,7 @@ export const ProjectsList = observer(() => {
         ]
         return (
           <MoreActionsButton
-            buttonProps={{ disabled: isLoadingProjectIdsToDelete.includes(id) }}
+            buttonProps={{ disabled: wipRemoveProjectIds.includes(id) }}
             menuModel={menuModel}
           />
         )
@@ -157,7 +145,7 @@ export const ProjectsList = observer(() => {
 
   let content: JSX.Element
 
-  if (isLoadingProjects) {
+  if (wipLoadProjects) {
     content = (
       <>
         {[...Array(5)].map((_, i) => (

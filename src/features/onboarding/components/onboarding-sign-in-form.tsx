@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { observer } from 'mobx-react-lite'
 import classNames from 'classnames'
@@ -7,7 +6,6 @@ import * as yup from 'yup'
 import { InputText } from 'primereact/inputtext'
 import { Button } from 'primereact/button'
 
-import { amplifySignIn } from '../services/onboarding-api.service'
 import {
   getFormikFormFieldErrorMessage,
   isFormikFormFieldInvalid,
@@ -16,17 +14,14 @@ import { useStore } from 'common/store/store'
 import { SignInFormData } from '../types/onboarding-forms.types'
 
 export const OnboardingSignInForm = observer(() => {
-  const { notifierStore } = useStore()
-
-  const [isLoading, setIsLoading] = useState(false)
+  const { notifierStore, onboardingStore } = useStore()
+  const { signIn, wipSignIn } = onboardingStore
 
   const navigate = useNavigate()
 
   const onSubmitHandler = async (signInFormData: SignInFormData): Promise<void> => {
     try {
-      setIsLoading(true)
-
-      await amplifySignIn(signInFormData)
+      await signIn(signInFormData)
 
       navigate('/projects')
     } catch (error) {
@@ -34,8 +29,6 @@ export const OnboardingSignInForm = observer(() => {
         severity: 'error',
         detail: `An error occurred while signing in: ${error.message}`,
       })
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -100,7 +93,7 @@ export const OnboardingSignInForm = observer(() => {
             type='submit'
             label='Sign in'
             iconPos='right'
-            loading={isLoading}
+            loading={wipSignIn}
             className='w-full mt-4'
           />
         </form>

@@ -1,24 +1,19 @@
-import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { observer } from 'mobx-react-lite'
 import classNames from 'classnames'
 
 import { ChildrenNode } from 'common/types/props.types'
 import { useStore } from 'common/store/store'
-import { amplifySignOut } from '../services/onboarding-api.service'
 
 export const OnboardingSignOutWrapper = observer(({ children }: ChildrenNode) => {
-  const { notifierStore } = useStore()
-
-  const [isLoading, setIsLoading] = useState(false)
+  const { notifierStore, onboardingStore } = useStore()
+  const { signOut, wipSignOut } = onboardingStore
 
   const navigate = useNavigate()
 
   const signOutHandler = async () => {
     try {
-      setIsLoading(true)
-
-      await amplifySignOut()
+      await signOut()
 
       navigate('/sign-in')
     } catch (error) {
@@ -26,8 +21,6 @@ export const OnboardingSignOutWrapper = observer(({ children }: ChildrenNode) =>
         severity: 'error',
         detail: `An error occurred while signing out: ${error.message}`,
       })
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -35,8 +28,8 @@ export const OnboardingSignOutWrapper = observer(({ children }: ChildrenNode) =>
     <div
       className={classNames(
         'cursor-pointer',
-        { 'opacity-50': isLoading },
-        { 'pointer-events-none': isLoading },
+        { 'opacity-50': wipSignOut },
+        { 'pointer-events-none': wipSignOut },
       )}
       onClick={() => {
         signOutHandler()
